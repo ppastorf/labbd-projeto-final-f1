@@ -38,6 +38,7 @@ Para subir o ambiente completo da aplicação rode os seguintes comandos em orde
 
 1. `npm i npm-run-all` para instalar os comandos requeridos no package.json
 1. `npm run build` na pasta `frontend/` para buildar os arquivos do frontend
+1. `docker login` para poder baixar as imagens base
 1. `docker-compose build` para montar o container do backend
 1. `docker-compose up -d` para subir o ambiente
 1. Logar no container do pgAdmin e adicionar o servidor do Postgres (hostname: nome do container no `docker-compose.yaml`)
