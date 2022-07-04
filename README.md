@@ -36,6 +36,7 @@ Para buildar o frontend use o comando `npm run build` na pasta do frontend. Apó
 ## Instruções para deploy
 Para subir o ambiente completo da aplicação rode os seguintes comandos em ordem:
 
+1. `npm i npm-run-all` para instalar os comandos requeridos no package.json
 1. `npm run build` na pasta `frontend/` para buildar os arquivos do frontend
 1. `docker-compose build` para montar o container do backend
 1. `docker-compose up -d` para subir o ambiente
