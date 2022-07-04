@@ -8,6 +8,7 @@ import (
 func newService() *Service {
 	service := &Service{
 		Server: echo.New(),
+		Store: StoreImpl{DB: createDB()},
 	}
 
 	return service
