@@ -10,13 +10,14 @@ services:
       PGDATA: /data/postgres
     volumes:
        - postgres:/data/postgres
+       - ./db/script.sql:/docker-entrypoint-initdb.d/script.sql
        - ./db/data:/data/source
     ports:
       - "5432:5432"
     networks:
       - postgres
     restart: unless-stopped
-  
+   
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
