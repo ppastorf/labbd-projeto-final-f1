@@ -273,14 +273,75 @@ CREATE TABLE GeoCities15KTEXT(
     Tupla TEXT
     );
 
+--==============================================================================================================
+-- USERS
+--==============================================================================================================
+
+DROP TABLE IF EXISTS Users CASCADE;
+CREATE TABLE Users (
+    UserId INTEGER PRIMARY KEY,
+    Login TEXT NOT NULL,
+    UserPassword TEXT NOT NULL,
+    Tipo VARCHAR(50) NOT NULL,
+    IdOriginal INTEGER NOT NULL
+    );
+
+CREATE SEQUENCE UserIdSeq;
+ALTER TABLE Users ALTER COLUMN UserId SET DEFAULT nextval('UserIdSeq');
+ALTER TABLE Users ADD CONSTRAINT tipo_id_unique_pair UNIQUE (Tipo,IdOriginal);
+
+ALTER SEQUENCE UserIdSeq
+OWNED BY Users.UserId;
+--==============================================================================================================
+-- Triggers
+--==============================================================================================================
+
+-- Create user for constructors
+
+-- Create user for new drivers
+CREATE OR REPLACE FUNCTION insert_user_entity_from_driver_func()
+RETURNS trigger AS $driver_trig$
+	BEGIN
+    	INSERT INTO public.Users (Login, UserPassword, Tipo, IdOriginal)
+        	VALUES(CONCAT(NEW.DriverRef,'_d'), MD5(NEW.DriverRef), 'PILOTO', NEW.DriverId);
+    	RETURN NULL;
+	END;
+$driver_trig$
+LANGUAGE 'plpgsql';
+
+DROP TRIGGER IF EXISTS insert_user_from_driver ON public."Driver";
+CREATE TRIGGER insert_user_from_driver
+  AFTER INSERT ON Driver
+  FOR EACH ROW
+  EXECUTE FUNCTION insert_user_entity_from_driver_func();
+
+
+
+CREATE OR REPLACE FUNCTION insert_user_entity_from_constructor_func(
+)
+  RETURNS trigger AS $constructor_trig$
+BEGIN
+    INSERT INTO public.Users (Login, UserPassword, Tipo, IdOriginal)
+         VALUES(CONCAT(NEW.ConstructorRef, '_c'), MD5(NEW.ConstructorRef), 'Escuderia', NEW.ConstructorId);
+    RETURN NULL;
+END;
+$constructor_trig$
+LANGUAGE 'plpgsql';
+
+DROP TRIGGER IF EXISTS insert_user_from_constructor ON public."Constructors";
+CREATE TRIGGER insert_user_from_constructor
+  AFTER INSERT
+  ON Constructors
+  FOR EACH ROW
+  EXECUTE PROCEDURE insert_user_entity_from_constructor_func();
 
 --==============================================================================================================
 --== Carrega as tabelas ========================================================================================
 SET DateStyle to DMY;
 PERFORM LoadFile(DirLocal, 'circuits.csv', 'Circuits', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
 PERFORM LoadFile(DirLocal, 'constructors.csv', 'Constructors', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
--- PERFORM LoadFile(DirLocal, 'constructor_results.csv', 'ConstructorResults', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
--- PERFORM LoadFile(DirLocal, 'constructorstandings.csv', 'ConstructorStandings', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
+-- -- PERFORM LoadFile(DirLocal, 'constructor_standings.csv', 'ConstructorStandings', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
+-- -- PERFORM LoadFile(DirLocal, 'constructor_results.csv', 'ConstructorResults', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
 PERFORM LoadFile(DirLocal, 'driver_standings.csv', 'DriverStandings', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
 PERFORM LoadFile(DirLocal, 'drivers.csv', 'Driver', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
 PERFORM LoadFile(DirLocal, 'lap_times.csv', 'LapTimes', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
@@ -294,8 +355,8 @@ PERFORM LoadFile(DirLocal, 'status.csv', 'Status', 'DELIMITER '','', NULL ''\N''
 PERFORM LoadFile(DirLocal, 'airports.csv', 'Airports', 'DELIMITER '','', NULL '''', HEADER true, FORMAT CSV');
 PERFORM LoadFile(DirLocal, 'countries.csv', 'Countries', 'DELIMITER '','', NULL '''', HEADER true, FORMAT CSV');
 
----- -- Faz a leitura da tabela Cities15K como uma coleção de linhas ---------------------------------------------------
-PERFORM LoadFile(DirLocal, 'cities15000.tsv', 'GeoCities15KTEXT', 'DELIMITER E''\b'', NULL '''', HEADER false');
+-- ---- -- Faz a leitura da tabela Cities15K como uma coleção de linhas ---------------------------------------------------
+PERFORM LoadFile(DirLocal, 'cities15000.txt', 'GeoCities15KTEXT', 'DELIMITER E''\b'', NULL '''', HEADER false');
 END $$;
 
 ---- -- Tratar a tabela GeoCities15K ------------------------------------------------------------------------
