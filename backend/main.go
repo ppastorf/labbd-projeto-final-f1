@@ -8,7 +8,7 @@ import (
 func newService() *Service {
 	service := &Service{
 		Server: echo.New(),
-		Store: StoreImpl{DB: createDB()},
+		Store:  &StoreImpl{DB: createDB()},
 	}
 
 	return service
@@ -17,6 +17,7 @@ func newService() *Service {
 func main() {
 	
 	service := newService()
+	defer service.Store.Close()
 
 	//Middleware
 	service.Server.Use(
@@ -29,27 +30,7 @@ func main() {
 		middleware.RequestID(),	
 	)
 	
-
-
-
-	// v1.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
-	// 	// Be careful to use constant time comparison to prevent timing attacks
-	// 	// faz a query e tenta pega as info
-
-	// 	// valida se a senha é igual
-	// 	if subtle.ConstantTimeCompare([]byte(username), []byte("joe")) == 1 &&
-	// 		subtle.ConstantTimeCompare([]byte(password), []byte("secret")) == 1 {
-	// 		return true, nil
-	// 	}
-	// 	return false, nil
-	// }))
-
-	// e.Use(middleware.Logger())
-	// e.Use(middleware.Recover())
-
-	// e.Static("/", "/app")
-
-	// e.GET("/login", routes.LoginPage)
+	service.Server.POST("/login", service.login)
 
 	service.Server.Logger.Fatal(service.Server.Start(":8080"))
 }
