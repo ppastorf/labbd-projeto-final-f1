@@ -273,64 +273,14 @@ CREATE TABLE GeoCities15KTEXT(
     Tupla TEXT
     );
 
---==============================================================================================================
--- USERS
---==============================================================================================================
-
-DROP TABLE IF EXISTS Users CASCADE;
-CREATE TABLE Users (
-    UserId INTEGER PRIMARY KEY DEFAULT nextval('UserIdSeq'),
-    Login TEXT NOT NULL UNIQUE,
-    Password UUID NOT NULL,
-    );
-
-DROP TABLE IF EXISTS UserTypes CASCADE;
-CREATE TABLE UserTypes (
-    UserId INTEGER PRIMARY KEY,
-    Tipo TEXT,
-    IdOriginal INTEGER
-    );
-ALTER TABLE UserTypes ADD CONSTRAINT TIPO_ID UNIQUE (Tipo,IdOriginal);
-ALTER TABLE UserTypes ADD CONSTRAINT fk_UserId FOREIGN KEY (UserId) REFERENCES Users(UserId);
-
-ALTER SEQUENCE UserIdSeq
-OWNED BY Users.UserId;
-
---==============================================================================================================
--- Triggers
---==============================================================================================================
-
--- Create user for constructors
-
--- Create user for new drivers
-CREATE OR REPLACE FUNCTION insert_user_from_driver_func(
-    driver_name VARCHAR
-)
-  RETURNS trigger AS
-$$
-BEGIN
-    INSERT INTO "User" ("Login", "Password")
-         VALUES(driver_name, MD5("password"));
-
-RETURN NEW;
-END;
-$$
-LANGUAGE 'plpgsql';
-
-DROP TRIGGER IF EXISTS UserTypes;
-CREATE TRIGGER insert_user_from_driver
-  AFTER INSERT
-  ON "Driver"
-  FOR EACH ROW
-  EXECUTE PROCEDURE insert_user_from_driver_func(OLD.Name);
 
 --==============================================================================================================
 --== Carrega as tabelas ========================================================================================
 SET DateStyle to DMY;
 PERFORM LoadFile(DirLocal, 'circuits.csv', 'Circuits', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
 PERFORM LoadFile(DirLocal, 'constructors.csv', 'Constructors', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
--- PERFORM LoadFile(DirLocal, 'constructor_standings.csv', 'ConstructorStandings', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
 -- PERFORM LoadFile(DirLocal, 'constructor_results.csv', 'ConstructorResults', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
+-- PERFORM LoadFile(DirLocal, 'constructorstandings.csv', 'ConstructorStandings', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
 PERFORM LoadFile(DirLocal, 'driver_standings.csv', 'DriverStandings', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
 PERFORM LoadFile(DirLocal, 'drivers.csv', 'Driver', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
 PERFORM LoadFile(DirLocal, 'lap_times.csv', 'LapTimes', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
@@ -345,7 +295,7 @@ PERFORM LoadFile(DirLocal, 'airports.csv', 'Airports', 'DELIMITER '','', NULL ''
 PERFORM LoadFile(DirLocal, 'countries.csv', 'Countries', 'DELIMITER '','', NULL '''', HEADER true, FORMAT CSV');
 
 ---- -- Faz a leitura da tabela Cities15K como uma coleção de linhas ---------------------------------------------------
-PERFORM LoadFile(DirLocal, 'cities15000.txt', 'GeoCities15KTEXT', 'DELIMITER E''\b'', NULL '''', HEADER false');
+PERFORM LoadFile(DirLocal, 'cities15000.tsv', 'GeoCities15KTEXT', 'DELIMITER E''\b'', NULL '''', HEADER false');
 END $$;
 
 ---- -- Tratar a tabela GeoCities15K ------------------------------------------------------------------------
