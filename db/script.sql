@@ -280,10 +280,10 @@ CREATE TABLE GeoCities15KTEXT(
 DROP TABLE IF EXISTS Users CASCADE;
 CREATE TABLE Users (
     UserId INTEGER PRIMARY KEY,
-    Login TEXT NOT NULL UNIQUE,
+    Login TEXT NOT NULL,
     UserPassword TEXT NOT NULL,
-    Tipo VARCHAR(50),
-    IdOriginal INTEGER
+    Tipo VARCHAR(50) NOT NULL,
+    IdOriginal INTEGER NOT NULL
     );
 
 CREATE SEQUENCE UserIdSeq;
@@ -299,15 +299,14 @@ OWNED BY Users.UserId;
 -- Create user for constructors
 
 -- Create user for new drivers
-CREATE OR REPLACE FUNCTION insert_user_entity_from_driver_func(
-)
-  RETURNS trigger AS $new$
-BEGIN
-    INSERT INTO public.Users (Login, UserPassword, Tipo, IdOriginal)
-         VALUES(CONCAT(NEW.DriverRef,'_d'), MD5(NEW.DriverRef), 'PILOTO', NEW.DriverId);
-    RETURN NEW;
-END;
-$new$
+CREATE OR REPLACE FUNCTION insert_user_entity_from_driver_func()
+RETURNS trigger AS $driver_trig$
+	BEGIN
+    	INSERT INTO public.Users (Login, UserPassword, Tipo, IdOriginal)
+        	VALUES(CONCAT(NEW.DriverRef,'_d'), MD5(NEW.DriverRef), 'PILOTO', NEW.DriverId);
+    	RETURN NULL;
+	END;
+$driver_trig$
 LANGUAGE 'plpgsql';
 
 DROP TRIGGER IF EXISTS insert_user_from_driver ON public."Driver";
@@ -320,13 +319,13 @@ CREATE TRIGGER insert_user_from_driver
 
 CREATE OR REPLACE FUNCTION insert_user_entity_from_constructor_func(
 )
-  RETURNS trigger AS $new$
+  RETURNS trigger AS $constructor_trig$
 BEGIN
     INSERT INTO public.Users (Login, UserPassword, Tipo, IdOriginal)
-         VALUES(CONCAT(NEW.ConstructorRef, '_d'), MD5(NEW.ConstructorRef), 'Escuderia', NEW.ConstructorId);
-    RETURN NEW;
+         VALUES(CONCAT(NEW.ConstructorRef, '_c'), MD5(NEW.ConstructorRef), 'Escuderia', NEW.ConstructorId);
+    RETURN NULL;
 END;
-$new$
+$constructor_trig$
 LANGUAGE 'plpgsql';
 
 DROP TRIGGER IF EXISTS insert_user_from_constructor ON public."Constructors";
