@@ -9,28 +9,23 @@ import (
 )
 
 const (
-	host     = "172.20.0.2"
+	host     = "localhost"
 	port     = 5432
 	user     = "postgres"
 	password = "changeme"
 	dbname   = "postgres"
 )
 
-var schema = `
-	CREATE TABLE member (
-		id text PRIMARY KEY,
-		name text NOT NULL,
-		phone text NOT NULL,
-		email text NOT NULL UNIQUE,
-		password text NOT NULL,
-		republica text,
-		isAdmin	bool DEFAULT FALSE
-);`
-
 func getConnString() string {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 
 	return psqlInfo
+}
+
+type Person struct {
+  FirstName string `db:"first_name"`
+  LastName  string `db:"last_name"`
+  Email     string
 }
 
 func createDB() *sqlx.DB {
@@ -39,22 +34,13 @@ func createDB() *sqlx.DB {
 		log.Fatal(err)
 	}
 
-	defer db.Close()
-
   // Ping test
   err = db.Ping()
   if err != nil {
     panic(err)
   }
-
-  fmt.Println("TO AQUI")
-  _, err = db.Exec(schema)
-  if err != nil {
-    panic(err)
-  }
-
-
-	return db
+  
+  return db
 }
 
 

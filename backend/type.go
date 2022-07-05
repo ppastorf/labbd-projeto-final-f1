@@ -11,7 +11,23 @@ type Service struct {
 	Store  Store
 }
 
-type Store interface {}
+type User struct {
+  UserId      int     `db:"userid"`
+  Login       string  `json:"login" db:"login"`
+  Password    string  `json:"password" db:"password"`
+  Tipo        string  `db:"tipo"`
+  IdOriginal  int     `db:"idoriginal"`
+}
+
+type InputLogin struct {
+  Login       string `json:"login"`
+  Password    string `json:"password"`
+}
+
+type Store interface {
+  Login(login string, password string) ([]User, error)
+  Close() error
+}
 
 //StoreImpl struct
 type StoreImpl struct {
