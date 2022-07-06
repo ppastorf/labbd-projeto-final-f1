@@ -32,7 +32,7 @@ func (s *StoreImpl) GetResultsByEachStatus(userId int, tipo string) ([]GetResult
 
   fmt.Println("Entrei no storage")
   switch tipo {
-	case "Admin":
+	case "admin":
     query := `select status.status, count(results.statusid)
     from results inner join status on results.statusid = status.statusid
     group by status.statusid
@@ -44,7 +44,7 @@ func (s *StoreImpl) GetResultsByEachStatus(userId int, tipo string) ([]GetResult
     } else {
       return GetResultsByEachStatus, nil
     }
-	case "Escuderia":
+	case "escuderia":
     query := fmt.Sprintf(`select status.status, count(results.statusid) 
     from results inner join status on results.statusid = status.statusid inner join constructors on constructors.constructorid = results.constructorid
     where constructors.constructorid = %v
@@ -57,7 +57,7 @@ func (s *StoreImpl) GetResultsByEachStatus(userId int, tipo string) ([]GetResult
     } else {
       return GetResultsByEachStatus, nil
     }
-	case "PILOTO":
+	case "piloto":
     query := fmt.Sprintf(`select status.status, count(results.statusid)
     from results inner join status on results.statusid = status.statusid inner join driver on driver.driverid = results.driverid
     where driver.driverid = %v
