@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -111,4 +112,73 @@ func (s *Service) CreateConstructor(c echo.Context) error {
 	log.Printf("Constructor '%s' created", request.Name)
 
 	return c.NoContent(http.StatusCreated)
+}
+
+// Admin overview
+func (s *Service) AdminInfo(c echo.Context) error {
+	response := &AdminInfo{}
+	var err error
+
+	userTipoCookie, _ := c.Cookie("tipo")
+	tipo := strings.ToLower(userTipoCookie.Value)
+
+	userIdCookie, _ := c.Cookie("userid")
+	userId, _ := strconv.Atoi(userIdCookie.Value)
+
+	if tipo != "admin" && userId != 0 {
+		return echo.NewHTTPError(http.StatusForbidden)
+	}
+
+	response, err = s.Store.GetAdminInfo()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get admin data")
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+// Constructor overview
+func (s *Service) ConstructorInfo(c echo.Context) error {
+	response := &ConstructorInfo{}
+	var err error
+
+	userTipoCookie, _ := c.Cookie("tipo")
+	tipo := strings.ToLower(userTipoCookie.Value)
+
+	userIdCookie, _ := c.Cookie("userid")
+	userId, _ := strconv.Atoi(userIdCookie.Value)
+
+	if tipo != "escuderia" {
+		return echo.NewHTTPError(http.StatusForbidden)
+	}
+
+	response, err = s.Store.GetConstructorInfo(userId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get constructor data")
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+// Constructor overview
+func (s *Service) DriverInfo(c echo.Context) error {
+	response := &DriverInfo{}
+	var err error
+
+	userTipoCookie, _ := c.Cookie("tipo")
+	tipo := strings.ToLower(userTipoCookie.Value)
+
+	userIdCookie, _ := c.Cookie("userid")
+	userId, _ := strconv.Atoi(userIdCookie.Value)
+
+	if tipo != "piloto" {
+		return echo.NewHTTPError(http.StatusForbidden)
+	}
+
+	response, err = s.Store.GetDriverInfo(userId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get driver data")
+	}
+
+	return c.JSON(http.StatusOK, response)
 }

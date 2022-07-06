@@ -19,6 +19,9 @@ type Store interface {
 	InsertConstructor(values CreateConstructorRequest) error
 	InsertDriver(values CreateDriverRequest) error
 	// GetAdminReport2(id int, tipo string) ([])
+	GetAdminInfo() (*AdminInfo, error)
+	GetConstructorInfo(userId int) (*ConstructorInfo, error)
+	GetDriverInfo(userId int) (*DriverInfo, error)
 }
 
 //StoreImpl struct
@@ -132,4 +135,42 @@ func (s *StoreImpl) InsertDriver(values CreateDriverRequest) error {
 		values.DriverRef, values.Number, values.Code, values.Forename, values.Surname, values.DateOfBirth, values.Nationality,
 	)
 	return s.insert(query, "Drivers")
+}
+
+// Admin overview
+type AdminInfo struct {
+	Pilotos    int
+	Escuderias int
+	Corridas   int
+	Temporadas int
+}
+
+func (s *StoreImpl) GetAdminInfo() (*AdminInfo, error) {
+	// query := fmt.Sprintf(``)
+	return nil, nil
+}
+
+// Constructor overview
+type ConstructorInfo struct {
+	Vitorias      int
+	PilotosUnicos int
+	PrimeiroAno   int
+	UltimoAno     int
+}
+
+func (s *StoreImpl) GetConstructorInfo(userId int) (*ConstructorInfo, error) {
+	// query := fmt.Sprintf(``)
+	return nil, nil
+}
+
+// Driver overview
+type DriverInfo struct {
+	Vitorias    int
+	PrimeiroAno int
+	UltimoAno   int
+}
+
+func (s *StoreImpl) GetDriverInfo(userId int) (*DriverInfo, error) {
+	// query := fmt.Sprintf(``)
+	return nil, nil
 }
