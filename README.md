@@ -1,17 +1,19 @@
 # Projeto final Lab BD - Grupo 14
 
-## Integrantes
+## Integrantes - NUSP
 
 Pedro Pastorello Fernandes - 10262502
-Vinicius Leite Ribeiro - 
-Rafael Polakieviz - 
+Luis Gustavo Peçanha - 9806763
+Rafael Marques Polakiewicz - 9846045
+Vinicius Cortizo - 10734161
+Vinicius Leite Ribeiro - 10388200
 
 ## Dependências
 
 1. [Docker](https://docs.docker.com/engine/install/) + [docker-compose](https://docs.docker.com/compose/install/)
 
 ### Backend
-1. [Go]()
+1. [Go](https://go.dev/doc/install)
 1. Dependências: comando `go get` na pasta `backend/`
 
 ### Frontend
@@ -36,7 +38,7 @@ Para buildar o frontend use o comando `npm run build` na pasta do frontend. Apó
 ## Instruções para deploy
 Para subir o ambiente completo da aplicação rode os seguintes comandos em ordem:
 
-1. `npm i npm-run-all` para instalar os comandos requeridos no package.json
+1. `npm install` na pasta `frontend/` para instalar as dependencias do frontend
 1. `npm run build` na pasta `frontend/` para buildar os arquivos do frontend
 1. `docker-compose build` para montar o container do backend
 1. `docker-compose up -d` para subir o ambiente
