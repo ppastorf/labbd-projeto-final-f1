@@ -27,6 +27,56 @@ func (s *StoreImpl) reportAllUsers() ([]User, error) {
   }
 }
 
+func (s *StoreImpl) GetResultsByEachStatus(userId int, tipo string) ([]GetResultsByEachStatus, error) {
+  GetResultsByEachStatus := []GetResultsByEachStatus{}
+
+  fmt.Println("Entrei no storage")
+  switch tipo {
+	case "Admin":
+    query := `select status.status, count(results.statusid)
+    from results inner join status on results.statusid = status.statusid
+    group by status.statusid
+    order by count desc`
+
+    if err := s.DB.Select(&GetResultsByEachStatus, query); err != nil {
+      fmt.Println(err)
+      return nil, err
+    } else {
+      return GetResultsByEachStatus, nil
+    }
+	case "Escuderia":
+    query := fmt.Sprintf(`select status.status, count(results.statusid) 
+    from results inner join status on results.statusid = status.statusid inner join constructors on constructors.constructorid = results.constructorid
+    where constructors.constructorid = %v
+    group by status.statusid, constructors.constructorid
+    order by count desc`, userId)
+
+    if err := s.DB.Select(&GetResultsByEachStatus, query); err != nil {
+      fmt.Println(err)
+      return nil, err
+    } else {
+      return GetResultsByEachStatus, nil
+    }
+	case "PILOTO":
+    query := fmt.Sprintf(`select status.status, count(results.statusid)
+    from results inner join status on results.statusid = status.statusid inner join driver on driver.driverid = results.driverid
+    where driver.driverid = %v
+    group by status.statusid, driver.driverid
+    order by count desc`, userId)
+
+    if err := s.DB.Select(&GetResultsByEachStatus, query); err != nil {
+      fmt.Println(err)
+      return nil, err
+    } else {
+      return GetResultsByEachStatus, nil
+    }
+
+	default:
+	  return nil, fmt.Errorf("GetResultsByEachStatus default case")
+	}
+}
+
+
 func (s *StoreImpl) rawSQL(input InputRawSQL) (interface{}, error) {
   out := []map[string]interface{}{}
   
@@ -54,7 +104,7 @@ func (s *StoreImpl) Login(login string, password string) (*User, error) {
 	if err := s.DB.Select(&user, query); err != nil {
     return nil, err
 	} else if len(user) == 1 {
-		  fmt.Println("User founded")
+		  fmt.Println("User found")
 			return &user[0], nil
 		} else {
 			return nil, fmt.Errorf("User not found")
