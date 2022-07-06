@@ -1,8 +1,6 @@
 package main
 
 import (
-	"net/http"
-
 	echo "github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -14,21 +12,6 @@ func newService() *Service {
 	}
 
 	return service
-}
-
-func AuthMiddleware() echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			userIdCookie, noIdCookie := c.Cookie("userid")
-			userTipoCookie, noTipoCookie := c.Cookie("tipo")
-
-			if noIdCookie != nil || noTipoCookie != nil || userIdCookie.Value == "" || userTipoCookie.Value == "" {
-				return c.Redirect(http.StatusPermanentRedirect, "/loginPage")
-			}
-
-			return next(c)
-		}
-	}
 }
 
 func main() {
