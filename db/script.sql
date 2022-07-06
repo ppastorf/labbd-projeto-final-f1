@@ -276,7 +276,6 @@ CREATE TABLE GeoCities15KTEXT(
 --==============================================================================================================
 -- USERS
 --==============================================================================================================
-
 DROP TABLE IF EXISTS Users CASCADE;
 CREATE TABLE Users (
     UserId INTEGER PRIMARY KEY,
@@ -292,18 +291,29 @@ ALTER TABLE Users ADD CONSTRAINT tipo_id_unique_pair UNIQUE (Tipo,IdOriginal);
 
 ALTER SEQUENCE UserIdSeq
 OWNED BY Users.UserId;
+
+-- Usuario de admin
+INSERT INTO public.Users (Login, UserPassword, Tipo, IdOriginal)
+    VALUES('admin', MD5('admin'), 'admin', 0);
+
+--==============================================================================================================
+-- Tabela de log de acesso
+--==============================================================================================================
+DROP TABLE IF EXISTS log_table CASCADE;
+CREATE TABLE log_table (
+    UserId INTEGER,
+    Time TIMESTAMP
+    );
+
 --==============================================================================================================
 -- Triggers
 --==============================================================================================================
-
--- Create user for constructors
-
--- Create user for new drivers
+-- Criar usuarios para pilotos
 CREATE OR REPLACE FUNCTION insert_user_entity_from_driver_func()
 RETURNS trigger AS $driver_trig$
 	BEGIN
     	INSERT INTO public.Users (Login, UserPassword, Tipo, IdOriginal)
-        	VALUES(CONCAT(NEW.DriverRef,'_d'), MD5(NEW.DriverRef), 'PILOTO', NEW.DriverId);
+        	VALUES(CONCAT(NEW.DriverRef,'_d'), MD5(NEW.DriverRef), 'piloto', NEW.DriverId);
     	RETURN NULL;
 	END;
 $driver_trig$
@@ -315,14 +325,12 @@ CREATE TRIGGER insert_user_from_driver
   FOR EACH ROW
   EXECUTE FUNCTION insert_user_entity_from_driver_func();
 
-
-
-CREATE OR REPLACE FUNCTION insert_user_entity_from_constructor_func(
-)
+-- Criar usuarios para escuderias
+CREATE OR REPLACE FUNCTION insert_user_entity_from_constructor_func()
   RETURNS trigger AS $constructor_trig$
 BEGIN
     INSERT INTO public.Users (Login, UserPassword, Tipo, IdOriginal)
-         VALUES(CONCAT(NEW.ConstructorRef, '_c'), MD5(NEW.ConstructorRef), 'Escuderia', NEW.ConstructorId);
+         VALUES(CONCAT(NEW.ConstructorRef, '_c'), MD5(NEW.ConstructorRef), 'escuderia', NEW.ConstructorId);
     RETURN NULL;
 END;
 $constructor_trig$
@@ -356,7 +364,7 @@ PERFORM LoadFile(DirLocal, 'airports.csv', 'Airports', 'DELIMITER '','', NULL ''
 PERFORM LoadFile(DirLocal, 'countries.csv', 'Countries', 'DELIMITER '','', NULL '''', HEADER true, FORMAT CSV');
 
 -- ---- -- Faz a leitura da tabela Cities15K como uma coleção de linhas ---------------------------------------------------
-PERFORM LoadFile(DirLocal, 'cities15000.txt', 'GeoCities15KTEXT', 'DELIMITER E''\b'', NULL '''', HEADER false');
+PERFORM LoadFile(DirLocal, 'cities15000.tsv', 'GeoCities15KTEXT', 'DELIMITER E''\b'', NULL '''', HEADER false');
 END $$;
 
 ---- -- Tratar a tabela GeoCities15K ------------------------------------------------------------------------
@@ -445,3 +453,17 @@ CREATE VIEW Tables AS
     SELECT 'GeoCities15K'         AS Table, Count(*) NroTuplas FROM GeoCities15K;
 
 Table Tables;
+
+--==============================================================================================================
+-- Indices e extensões
+--==============================================================================================================
+-- Relatorio 2
+CREATE EXTENSION IF NOT EXISTS Cube;
+CREATE EXTENSION IF NOT EXISTS EarthDistance;
+CREATE INDEX latdeg_longdeg_idx ON airports(latdeg, longdeg);
+
+-- Relatorio 3
+CREATE INDEX driverid_idx ON results(driverid);
+
+-- Relatorio 5
+CREATE INDEX raceid_idx on results(raceid);
