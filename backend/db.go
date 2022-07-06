@@ -30,6 +30,7 @@ type Person struct {
 
 func createDB() *sqlx.DB {
 	db, err := sqlx.Open("postgres", getConnString())
+  db = db.Unsafe()
 	if err != nil {
 		log.Fatal(err)
 	}

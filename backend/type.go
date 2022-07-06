@@ -14,7 +14,7 @@ type Service struct {
 type User struct {
   UserId      int     `db:"userid"`
   Login       string  `json:"login" db:"login"`
-  Password    string  `json:"password" db:"password"`
+  Password    string  `json:"password" db:"userpassword"`
   Tipo        string  `db:"tipo"`
   IdOriginal  int     `db:"idoriginal"`
 }
@@ -24,9 +24,15 @@ type InputLogin struct {
   Password    string `json:"password"`
 }
 
+type InputRawSQL struct {
+  SQL string `json:"sql"`
+}
+
 type Store interface {
-  Login(login string, password string) ([]User, error)
+  Login(login string, password string) (*User, error)
   Close() error
+  reportAllUsers() ([]User, error)
+  rawSQL(input InputRawSQL) (interface{}, error)
 }
 
 //StoreImpl struct
