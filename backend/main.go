@@ -30,7 +30,19 @@ func main() {
 		middleware.RequestID(),	
 	)
 	
-	service.Server.POST("/login", service.login)
+	//Login
+	service.Server.POST("/login", service.Login)
+	
+	service.Server.GET("/login", service.GetLoginView)
+	service.Server.GET("/admin", service.GetAdminView)
+	service.Server.GET("/escuderia", service.GetEscuderiaView)
+	service.Server.GET("/piloto", service.GetPilotoView)
+
+	//Utils
+	service.Server.POST("/sql", service.RawSQL)
+
+	//Test
+	service.Server.GET("/report/all-users", service.ReportAllUsers)
 
 	service.Server.Logger.Fatal(service.Server.Start(":8080"))
 }
