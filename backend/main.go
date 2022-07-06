@@ -7,7 +7,7 @@ import (
 
 func newService() *Service {
 	service := &Service{
-		Server: echo.New(),
+		Server: echo.New(),	
 		Store:  &StoreImpl{DB: createDB()},
 	}
 
@@ -35,8 +35,12 @@ func main() {
 	
 	service.Server.GET("/login", service.GetLoginView)
 	service.Server.GET("/admin", service.GetAdminView)
-	service.Server.GET("/escuderia", service.GetEscuderiaView)
-	service.Server.GET("/piloto", service.GetPilotoView)
+	service.Server.GET("/escuderia", service.GetSquadronView)
+	service.Server.GET("/piloto", service.GetPilotView)
+
+
+	//Relatorios
+	service.Server.GET("/admin/resultados-por-status", service.GetResultsByEachStatus)
 
 	//Utils
 	service.Server.POST("/sql", service.RawSQL)
