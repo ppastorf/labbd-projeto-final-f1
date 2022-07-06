@@ -25,6 +25,7 @@ func main() {
 			AllowMethods: []string{echo.GET, echo.POST},
 			AllowOrigins: []string{"*"},
 		}),
+		middleware.Static("/app"),
 		middleware.Logger(),
 		middleware.Recover(),
 		middleware.RequestID(),
@@ -33,20 +34,10 @@ func main() {
 	//Login
 	service.Server.POST("/login", service.Login)
 
-	service.Server.GET("/login", service.GetLoginView)
-	service.Server.GET("/admin", service.GetAdminView)
-	service.Server.GET("/escuderia", service.GetConstructorView)
-	service.Server.GET("/piloto", service.GetPilotView)
-
 	//Relatorios
 	service.Server.GET("/status-report", service.GetStatusReport)
-	service.Server.GET("/report", service.GetReports)
+	// service.Server.GET("/custom-report", service.GetCustomReport)
 
-	//Utils
-	service.Server.POST("/sql", service.RawSQL)
-
-	//Test
-	service.Server.GET("/report/all-users", service.ReportAllUsers)
-
+	// service.Server.GET("/report", service.GetReports)
 	service.Server.Logger.Fatal(service.Server.Start(":8080"))
 }

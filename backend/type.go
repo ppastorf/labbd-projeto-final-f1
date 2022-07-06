@@ -39,6 +39,7 @@ type Store interface {
   reportAllUsers() ([]User, error)
   rawSQL(input InputRawSQL) (interface{}, error)
   GetResultsByEachStatus(id int, tipo string) ([]GetResultsByEachStatus, error)
+  // GetAdminReport2(id int, tipo string) ([])
 }
 
 //StoreImpl struct

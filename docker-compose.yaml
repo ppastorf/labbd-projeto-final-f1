@@ -32,19 +32,19 @@ services:
       - postgres
     restart: always
 
-  # backend:
-  #   container_name: backend
-  #   build:
-  #     context: ./backend
-  #   depends_on:
-  #     - postgres
-  #   volumes:
-  #     - ./frontend/dist:/app
-  #   ports:
-  #     - "8080:8080"
-  #   networks:
-  #     - postgres
-  #   restart: unless-stopped
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+    depends_on:
+      - postgres
+    volumes:
+      - ./frontend/dist:/app
+    ports:
+      - "8080:8080"
+    networks:
+      - postgres
+    restart: unless-stopped
 
 networks:
   postgres:
