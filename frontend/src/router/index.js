@@ -12,9 +12,9 @@ const routes = [
         component:()=>import('../views/SignupEscuderia.vue')
     },
     {
-        path:'/login',
-        name:"Login",
-        component:()=>import('../views/Login.vue')
+        path:'/loginPage',
+        name:"LoginPage",
+        component:()=>import('../views/LoginPage.vue')
     },
     {
         path:'/user-profile',
@@ -27,9 +27,9 @@ const routes = [
         component:()=>import('../views/Admin.vue')
     },
     {
-        path:'/escuderia-profile',
-        name:"Escuderia",
-        component:()=>import('../views/Escuderia.vue')
+        path:'/overview',
+        name:"overview",
+        component:()=>import('../views/Overview.vue')
     }
 ]
 

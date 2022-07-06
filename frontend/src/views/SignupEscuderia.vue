@@ -53,6 +53,7 @@
 import axios from 'axios'
 import useVuelidate from '@vuelidate/core'
 import { required, email, minLength, sameAs } from '@vuelidate/validators'
+import Cookie from '../assets/cookie.js'
 
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 export function validName(name) {
@@ -121,7 +122,11 @@ export default {
                     //     console.log("piru")
                     // }
                 }.bind(this));
-        }
+        },
+        getCookie() {
+                this.userid = Cache.get("userid");
+                this.tipo = Cache.get("tipo");
+            }
     }
 }
 </script>

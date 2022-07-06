@@ -11,7 +11,7 @@
               <div class="col-lg-4">
                 <form class="card mb-4">
                   <div class="card-header">
-                    <h4 class="card-heading">Escuderia</h4>
+                    <h4 class="card-heading">Admin</h4>
                   </div>
                   <div class="card-body">
                     <div class="row mb-3">
@@ -94,10 +94,10 @@ export default {
       .then(response => (this.rel5 = response))
     },
     submitPiloto(){
-        
+        this.$route.push({ name: 'user-profile' })
     },
     submitEscuderia(){
-        
+        this.$route.push({ name: 'user-profile' })
     }
   },
   created() {
