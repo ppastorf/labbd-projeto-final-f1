@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="onSubmit">
+  <form @submit.prevent="onSubmit" v-if="this.tipo==='admin'">
     <!-- First and Last Name Row -->
     <div class="page-header mb-4">
                 <h3 class="page-heading">Cadastrar Escuderia</h3>
@@ -48,6 +48,9 @@
     </div>
     
   </form>
+  <div v-else>
+  Você não é administrador
+  </div>
 </template>
 <script>
 import axios from 'axios'
@@ -76,7 +79,9 @@ export default {
       form: {
         nome: '',
         url: '',
-        nascionalidade: ''
+        nascionalidade: '',
+        userid:'',
+        tipo:''
       }
     }
   },
@@ -128,5 +133,8 @@ export default {
                 this.tipo = Cache.get("tipo");
             }
     }
+    ,mounted(){
+      getCookie();
+  }
 }
 </script>

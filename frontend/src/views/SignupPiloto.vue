@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="onSubmit">
+  <form @submit.prevent="onSubmit" v-if="this.tipo==='admin'">
     <!-- First and Last Name Row -->
     <div class="page-header mb-4">
                 <h3 class="page-heading">Cadastrar Piloto</h3>
@@ -79,11 +79,15 @@
     </div>
     
   </form>
+  <div v-else>
+  Você não é administrador
+  </div>
 </template>
 <script>
 import axios from 'axios'
 import useVuelidate from '@vuelidate/core'
 import { required, email, minLength, sameAs } from '@vuelidate/validators'
+import Cookie from '../assets/cookie.js'
 
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 export function validName(name) {
@@ -158,7 +162,14 @@ export default {
                     //     console.log("piru")
                     // }
                 }.bind(this));
+        },
+        getCookie() {
+          this.userid = Cache.get("userid");
+          this.tipo = Cache.get("tipo");
         }
     }
+    ,mounted(){
+      getCookie();
+  }
 }
 </script>

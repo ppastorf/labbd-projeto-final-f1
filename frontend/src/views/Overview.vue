@@ -172,6 +172,11 @@ export default {
       .get('http://localhost:5000/overviewpiloto')
       .then(response => (this.info = response))
     },
+    async getDataOverview() {
+      axios
+      .get('http://localhost:5000/overviewpiloto')
+      .then(response => (this.info = response))
+    },
     async getDataRel5() {
       axios
       .get('http://localhost:5000/rel5')
@@ -205,6 +210,7 @@ export default {
     }
   },
   created() {
+    
     this.getDataOverview();
     this.getDataRel5();
   },mounted(){
