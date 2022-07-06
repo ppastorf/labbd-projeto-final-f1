@@ -16,6 +16,8 @@ type Store interface {
 	Login(login string, password string) (*User, error)
 	Close() error
 	GetResultsByEachStatus(id int, tipo string) ([]ResultStatus, error)
+	InsertConstructor(values CreateConstructorRequest) error
+	InsertDriver(values CreateDriverRequest) error
 	// GetAdminReport2(id int, tipo string) ([])
 }
 
@@ -84,13 +86,10 @@ func (s *StoreImpl) GetResultsByEachStatus(userId int, tipo string) ([]ResultSta
 }
 
 func (s *StoreImpl) Login(login string, password string) (*User, error) {
-
 	user := []User{}
 
 	// !!
 	query := fmt.Sprintf(`SELECT * FROM users WHERE login='%v' AND userpassword='%v'`, login, md5Encrypt(password))
-
-	fmt.Println(query)
 
 	if err := s.DB.Select(&user, query); err != nil {
 		return nil, err
@@ -100,4 +99,37 @@ func (s *StoreImpl) Login(login string, password string) (*User, error) {
 	} else {
 		return nil, fmt.Errorf("User not found")
 	}
+}
+
+func (s *StoreImpl) insert(table, query string) error {
+	result, err := s.DB.Exec(query)
+	if err != nil {
+		log.Printf("Storage error: %s\n", err.Error())
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil || rowsAffected == 0 {
+		log.Printf("Failed to insert into table %s\n", err.Error())
+	}
+	log.Printf("Inserted row into table %s\n", table)
+
+	return nil
+}
+
+func (s *StoreImpl) InsertConstructor(values CreateConstructorRequest) error {
+	query := fmt.Sprintf(`
+    INSERT INTO public.Constructors (ConstructorRef, Name, Nationality, Url)
+      VALUES('%s', '%s', '%s',' %s',);`,
+		values.ConstructorRef, values.Name, values.Nationality, values.Url,
+	)
+	return s.insert(query, "Constructor")
+}
+
+func (s *StoreImpl) InsertDriver(values CreateDriverRequest) error {
+	query := fmt.Sprintf(`
+    INSERT INTO public.Drivers (Driverref, Number, Code, Forename, Surname, Date of Birth, Nationality)
+      VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', );`,
+		values.DriverRef, values.Number, values.Code, values.Forename, values.Surname, values.DateOfBirth, values.Nationality,
+	)
+	return s.insert(query, "Drivers")
 }
