@@ -7,7 +7,7 @@ import (
 
 func newService() *Service {
 	service := &Service{
-		Server: echo.New(),	
+		Server: echo.New(),
 		Store:  &StoreImpl{DB: createDB()},
 	}
 
@@ -15,7 +15,7 @@ func newService() *Service {
 }
 
 func main() {
-	
+
 	service := newService()
 	defer service.Store.Close()
 
@@ -27,24 +27,20 @@ func main() {
 		}),
 		middleware.Logger(),
 		middleware.Recover(),
-		middleware.RequestID(),	
+		middleware.RequestID(),
 	)
-	
+
 	//Login
 	service.Server.POST("/login", service.Login)
-	
+
 	service.Server.GET("/login", service.GetLoginView)
 	service.Server.GET("/admin", service.GetAdminView)
 	service.Server.GET("/escuderia", service.GetConstructorView)
 	service.Server.GET("/piloto", service.GetPilotView)
 
-
 	//Relatorios
-	service.Server.GET("/admin/status-report", service.GetAdminStatusReport)
-	service.Server.GET("/escuderia/status-report", service.GetEscuderiaStatusReport)
-	service.Server.GET("/piloto/status-report", service.GetPilotoStatusReport)
+	service.Server.GET("/status-report", service.GetStatusReport)
 	service.Server.GET("/report", service.GetReports)
-
 
 	//Utils
 	service.Server.POST("/sql", service.RawSQL)
