@@ -35,12 +35,16 @@ func main() {
 	
 	service.Server.GET("/login", service.GetLoginView)
 	service.Server.GET("/admin", service.GetAdminView)
-	service.Server.GET("/escuderia", service.GetSquadronView)
+	service.Server.GET("/escuderia", service.GetConstructorView)
 	service.Server.GET("/piloto", service.GetPilotView)
 
 
 	//Relatorios
-	service.Server.GET("/admin/resultados-por-status", service.GetResultsByEachStatus)
+	service.Server.GET("/admin/status-report", service.GetAdminStatusReport)
+	service.Server.GET("/escuderia/status-report", service.GetEscuderiaStatusReport)
+	service.Server.GET("/piloto/status-report", service.GetPilotoStatusReport)
+	service.Server.GET("/report", service.GetReports)
+
 
 	//Utils
 	service.Server.POST("/sql", service.RawSQL)
