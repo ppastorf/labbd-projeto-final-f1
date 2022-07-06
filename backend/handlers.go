@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
-  "strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -51,55 +51,51 @@ func (s *Service) Login(c echo.Context) error {
 	}
 }
 
-// Login
-
 // Login Views
-func (s *Service) GetAdminView(c echo.Context) error {
-	usernameCookie, _ := c.Cookie("username")
-	tipoCookie, _ := c.Cookie("tipo")
+// func (s *Service) GetAdminView(c echo.Context) error {
+// 	usernameCookie, _ := c.Cookie("username")
+// 	tipoCookie, _ := c.Cookie("tipo")
 
-	if usernameCookie == nil {
-		return c.Redirect(http.StatusFound, "/login")
-	}
-	if tipoCookie.Value != "Admin" {
-		return c.NoContent(http.StatusForbidden)
-	}
+// 	if usernameCookie == nil {
+// 		return c.Redirect(http.StatusFound, "/login")
+// 	}
+// 	if tipoCookie.Value != "Admin" {
+// 		return c.NoContent(http.StatusForbidden)
+// 	}
 
-	return c.HTML(http.StatusOK, renderHTML("frontend_test/admin.html", map[string]string{
-		"nome": usernameCookie.Value,
-	}))
-}
+// 	return c.HTML(http.StatusOK, renderHTML("frontend_test/admin.html", map[string]string{
+// 		"nome": usernameCookie.Value,
+// 	}))
+// }
 
-func (s *Service) GetConstructorView(c echo.Context) error {
-	usernameCookie, _ := c.Cookie("username")
-	tipoCookie, _ := c.Cookie("tipo")
+// func (s *Service) GetConstructorView(c echo.Context) error {
+// 	usernameCookie, _ := c.Cookie("username")
+// 	tipoCookie, _ := c.Cookie("tipo")
 
-	if usernameCookie == nil {
-		return c.Redirect(http.StatusFound, "/login")
-	}
-	if tipoCookie.Value != "Escuderia" {
-		return c.NoContent(http.StatusForbidden)
-	}
+// 	if usernameCookie == nil {
+// 		return c.Redirect(http.StatusFound, "/login")
+// 	}
+// 	if tipoCookie.Value != "Escuderia" {
+// 		return c.NoContent(http.StatusForbidden)
+// 	}
 
-	return c.HTML(http.StatusOK, renderHTML("frontend_test/escuderia.html", map[string]string{
-		"nome": usernameCookie.Value,
-	}))
-}
+// 	return c.HTML(http.StatusOK, renderHTML("frontend_test/escuderia.html", map[string]string{
+// 		"nome": usernameCookie.Value,
+// 	}))
+// }
 
-func (s *Service) GetPilotView(c echo.Context) error {
-	usernameCookie, _ := c.Cookie("username")
+// func (s *Service) GetPilotView(c echo.Context) error {
+// 	usernameCookie, _ := c.Cookie("username")
 
-	if usernameCookie == nil {
-		return c.Redirect(http.StatusFound, "/login")
-	}
-	return c.HTML(http.StatusOK, renderHTML("frontend_test/piloto.html", nil))
-}
+// 	if usernameCookie == nil {
+// 		return c.Redirect(http.StatusFound, "/login")
+// 	}
+// 	return c.HTML(http.StatusOK, renderHTML("frontend_test/piloto.html", nil))
+// }
 
-func (s *Service) GetLoginView(c echo.Context) error {
-	return c.HTML(http.StatusOK, renderHTML("frontend_test/login.html", map[string]string{}))
-}
-
-// Login Views
+// func (s *Service) GetLoginView(c echo.Context) error {
+// 	return c.HTML(http.StatusOK, renderHTML("frontend_test/login.html", map[string]string{}))
+// }
 
 // Reports
 func (s *Service) GetStatusReport(c echo.Context) error {
@@ -109,16 +105,16 @@ func (s *Service) GetStatusReport(c echo.Context) error {
 		fmt.Println(err)
 	}
 
-  userId, err := strconv.Atoi(userIdCookie.Value)
+	userId, err := strconv.Atoi(userIdCookie.Value)
 	if err != nil {
 		fmt.Println("Erro Atoi: ", err)
 	}
 
-  tipo := strings.ToLower(userTipoCookie.Value)
-  if tipo != "admin" && tipo != "escuderia" && tipo != "piloto" {
-    fmt.Println(tipo)
-    return c.NoContent(http.StatusForbidden)
-  }
+	tipo := strings.ToLower(userTipoCookie.Value)
+	if tipo != "admin" && tipo != "escuderia" && tipo != "piloto" {
+		fmt.Println(tipo)
+		return c.NoContent(http.StatusForbidden)
+	}
 
 	resultsByEachStatus, err := s.Store.GetResultsByEachStatus(userId, tipo)
 	if err != nil {
@@ -134,7 +130,7 @@ func (s *Service) GetStatusReport(c echo.Context) error {
 //   if err != nil {
 //     fmt.Println(err)
 //   }
-  
+
 //   if userId == nil {
 //     return c.Redirect(http.StatusForbidden, "/login")
 //   }
@@ -147,10 +143,10 @@ func (s *Service) GetStatusReport(c echo.Context) error {
 //   if err != nil {
 //     fmt.Println("Erro Atoi: ", err)
 //   }
-//   GetResultsByEachStatus, err := s.Store.GetAdminReport2(intUserId, tipo.Value)  
+//   GetResultsByEachStatus, err := s.Store.GetAdminReport2(intUserId, tipo.Value)
 //   if err != nil {
 // 		return err
 // 	}
-  
+
 //   return c.JSON(http.StatusOK, GetResultsByEachStatus)
 // }
