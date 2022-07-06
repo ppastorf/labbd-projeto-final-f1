@@ -1,107 +1,33 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
+  "fmt"
   "strings"
 
 	"github.com/labstack/echo/v4"
 )
 
 // Login
-func (s *Service) Login(c echo.Context) error {
-
-	input := InputLogin{}
-	user := &User{}
-	var err error
-
-	if err := json.NewDecoder(c.Request().Body).Decode(&input); err != nil {
-		return err
-	}
-
-	if user, err = s.Store.Login(input.Login, input.Password); err != nil {
-		return c.JSON(http.StatusBadRequest, "Username or password  not found")
-	} else {
-		fmt.Printf("User %s logged", user.Login)
-		usernameCookie := new(http.Cookie)
-		usernameCookie.Name = "username"
-		usernameCookie.Value = user.Login
-		usernameCookie.Expires = time.Now().Add(24 * time.Hour)
-
-		c.SetCookie(usernameCookie)
-
-		tipoCookie := new(http.Cookie)
-		tipoCookie.Name = "tipo"
-		tipoCookie.Value = user.Tipo
-		tipoCookie.Expires = time.Now().Add(24 * time.Hour)
-
-		c.SetCookie(tipoCookie)
-
-		idCookie := new(http.Cookie)
-		idCookie.Name = "userid"
-		idCookie.Value = strconv.Itoa(user.UserId)
-		idCookie.Expires = time.Now().Add(24 * time.Hour)
-
-		c.SetCookie(idCookie)
-
-		return c.Redirect(http.StatusFound, selectProperUserPage(user))
+func AuthMiddleware() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+      if c.Request().RequestURI == "/login" {
+			  return next(c)
+      }
+			userIdCookie, noIdCookie := c.Cookie("userid")
+			userTipoCookie, noTipoCookie := c.Cookie("tipo")
+			if noIdCookie != nil || noTipoCookie != nil || userIdCookie.Value == "" || userTipoCookie.Value == "" {
+				return c.Redirect(http.StatusPermanentRedirect, "/loginPage")
+			}
+			return next(c)
+		}
 	}
 }
 
-// Login
-
-// Login Views
-func (s *Service) GetAdminView(c echo.Context) error {
-	usernameCookie, _ := c.Cookie("username")
-	tipoCookie, _ := c.Cookie("tipo")
-
-	if usernameCookie == nil {
-		return c.Redirect(http.StatusFound, "/login")
-	}
-	if tipoCookie.Value != "Admin" {
-		return c.NoContent(http.StatusForbidden)
-	}
-
-	return c.HTML(http.StatusOK, renderHTML("frontend_test/admin.html", map[string]string{
-		"nome": usernameCookie.Value,
-	}))
-}
-
-func (s *Service) GetConstructorView(c echo.Context) error {
-	usernameCookie, _ := c.Cookie("username")
-	tipoCookie, _ := c.Cookie("tipo")
-
-	if usernameCookie == nil {
-		return c.Redirect(http.StatusFound, "/login")
-	}
-	if tipoCookie.Value != "Escuderia" {
-		return c.NoContent(http.StatusForbidden)
-	}
-
-	return c.HTML(http.StatusOK, renderHTML("frontend_test/escuderia.html", map[string]string{
-		"nome": usernameCookie.Value,
-	}))
-}
-
-func (s *Service) GetPilotView(c echo.Context) error {
-	usernameCookie, _ := c.Cookie("username")
-
-	if usernameCookie == nil {
-		return c.Redirect(http.StatusFound, "/login")
-	}
-	return c.HTML(http.StatusOK, renderHTML("frontend_test/piloto.html", nil))
-}
-
-func (s *Service) GetLoginView(c echo.Context) error {
-	return c.HTML(http.StatusOK, renderHTML("frontend_test/login.html", map[string]string{}))
-}
-
-// Login Views
-
-// Reports
 func (s *Service) GetStatusReport(c echo.Context) error {
 	userIdCookie, err := c.Cookie("userid")
 	userTipoCookie, _ := c.Cookie("tipo")
@@ -128,29 +54,103 @@ func (s *Service) GetStatusReport(c echo.Context) error {
 	return c.JSON(http.StatusOK, resultsByEachStatus)
 }
 
-// func (s *Service) GetAdminReport2(c echo.Context) error {
-//   userId, err := c.Cookie("userid")
-//   tipo, _ := c.Cookie("tipo")
-//   if err != nil {
-//     fmt.Println(err)
-//   }
-  
-//   if userId == nil {
-//     return c.Redirect(http.StatusForbidden, "/login")
-//   }
+type InputLogin struct {
+	Login    string `json:"login"`
+	Password string `json:"password"`
+}
 
-//   if tipo.Value != "Admin" {
-//     return c.NoContent(http.StatusForbidden)
-//   }
+func (s *Service) Login(c echo.Context) error {
+	input := InputLogin{}
+	user := &User{}
+	var err error
 
-//   intUserId, err := strconv.Atoi(userId.Value)
-//   if err != nil {
-//     fmt.Println("Erro Atoi: ", err)
-//   }
-//   GetResultsByEachStatus, err := s.Store.GetAdminReport2(intUserId, tipo.Value)  
-//   if err != nil {
-// 		return err
-// 	}
+	if err = c.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+
+	if user, err = s.Store.Login(input.Login, input.Password); err != nil {
+		return c.JSON(http.StatusBadRequest, "Username or password  not found")
+	}
+
+	log.Printf("User %s logged", user.Login)
+
+	tipoCookie := new(http.Cookie)
+	tipoCookie.Name = "tipo"
+	tipoCookie.Value = user.Tipo
+	tipoCookie.Expires = time.Now().Add(24 * time.Hour)
+	c.SetCookie(tipoCookie)
+
+	idCookie := new(http.Cookie)
+	idCookie.Name = "userid"
+	idCookie.Value = strconv.Itoa(user.UserId)
+	idCookie.Expires = time.Now().Add(24 * time.Hour)
+	c.SetCookie(idCookie)
+
+	return c.Redirect(http.StatusFound, "/overview")
+}
+
+func (s *Service) GetAdminReport2(c echo.Context) error {
+  report := []Report2{}
+  input := Report2Input{}
+
+  if err := c.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+	fmt.Println(input.Cidade)
+
+  report, err := s.Store.GetAdminReport2(input.Cidade)  
+  if err != nil {
+		return err
+	}
   
-//   return c.JSON(http.StatusOK, GetResultsByEachStatus)
-// }
+  return c.JSON(http.StatusOK, report)
+}
+
+func (s *Service) GetAdminReport3(c echo.Context) error {
+  report := []Report3{}
+
+  report, err := s.Store.GetAdminReport3()  
+  if err != nil {
+		return err
+	}
+  
+  return c.JSON(http.StatusOK, report)
+}
+
+func (s *Service) GetAdminReport5(c echo.Context) error {
+  report := []Report5{}
+
+  userIdCookie, err := c.Cookie("userid")
+
+  report, err = s.Store.GetAdminReport5(userIdCookie.Value)  
+  if err != nil {
+		return err
+	}
+  
+  return c.JSON(http.StatusOK, report)
+}
+
+func (s *Service) SearchPilot(c echo.Context) error {
+
+  userIdCookie, err := c.Cookie("userid")
+  if err != nil {
+		return err
+	}
+  
+  fmt.Println(userIdCookie)
+
+  input := SearchInput{}
+  if err := c.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+
+  fmt.Println(input.Sobrenome)
+
+  search, err := s.Store.SearchPilot(input.Sobrenome, userIdCookie.Value)
+  if err != nil {
+    fmt.Println(err)
+    return err
+	}
+
+  return c.JSON(http.StatusOK, search)
+}

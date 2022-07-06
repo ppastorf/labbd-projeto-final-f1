@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 )
 
@@ -12,37 +11,48 @@ type Service struct {
 }
 
 type User struct {
-  UserId      int     `db:"userid"`
-  Login       string  `json:"login" db:"login"`
-  Password    string  `json:"password" db:"userpassword"`
-  Tipo        string  `db:"tipo"`
-  IdOriginal  int     `db:"idoriginal"`
+	UserId     int    `db:"userid"`
+	Login      string `form:"login" json:"login" db:"login"`
+	Password   string `form:"password" json:"password" db:"userpassword"`
+	Tipo       string `db:"tipo"`
+	IdOriginal int    `db:"idoriginal"`
+}
+
+type Report2Input struct {
+	Cidade string `query:"cidade"`
+}
+
+type Report3 struct {
+	NomeCompleto string `json:"nome_completo" db:"nome_completo"`
+	Vitorias int `json:"vitorias" db:"vitorias"`
+}
+
+type Report5 struct {
+	Ano *int `json:"ano" db:"ano"`
+	Corrida *string `json:"corrida" db:"corrida"`
+	Vitoria *int `json:"vitoria" db:"vitoria"`
+}
+
+type Search struct {
+	Nome 			*string `form:"name" json:"name" db:"name"`
+	DataNascimento  *string `form:"data_nascimento" json:"data_nascimento" db:"data_nascimento"`
+	Nacionalidade	*string	`form:"nacionalidade" json:"nacionalidade" db:"nacionalidade"`
+}
+
+type SearchInput struct {
+	Sobrenome string `form:"sobrenome" json:"sobrenome" db:"sobrenome"`
 }
 
 type GetResultsByEachStatus struct {
-  Status      string  `json:"status" db:"status"`
-  Count       int     `json:"count" db:"count"`
+	Status string `json:"status" db:"status"`
+	Count  int    `json:"count" db:"count"`
 }
 
-type InputLogin struct {
-  Login       string `json:"login"`
-  Password    string `json:"password"`
-}
-
-type InputRawSQL struct {
-  SQL string `json:"sql"`
-}
-
-type Store interface {
-  Login(login string, password string) (*User, error)
-  Close() error
-  reportAllUsers() ([]User, error)
-  rawSQL(input InputRawSQL) (interface{}, error)
-  GetResultsByEachStatus(id int, tipo string) ([]GetResultsByEachStatus, error)
-  // GetAdminReport2(id int, tipo string) ([])
-}
-
-//StoreImpl struct
-type StoreImpl struct {
-	DB *sqlx.DB
+type Report2 struct {
+	NomeDaCidade *string	`json:"nome_da_cidade" db:"nome_da_cidade"`
+	CodigoIATA *string `json:"codigo_iata" db:"codigo_iata"`
+	NomeAeroporto *string `json:"nome_aeroporto" db:"nome_aeroporto"`
+	CidadeAeroporto *string `json:"cidade_aeroporto" db:"cidade_aeroporto"`
+	TipoAeroporto *string `json:"tipo_aeroporto" db:"tipo_aeroporto"`
+	Distancia *string `json:"distancia" db:"distancia"`
 }

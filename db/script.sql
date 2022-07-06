@@ -276,61 +276,80 @@ CREATE TABLE GeoCities15KTEXT(
 --==============================================================================================================
 -- USERS
 --==============================================================================================================
-
 DROP TABLE IF EXISTS Users CASCADE;
 CREATE TABLE Users (
-    UserId INTEGER PRIMARY KEY DEFAULT nextval('UserIdSeq'),
-    Login TEXT NOT NULL UNIQUE,
-    Password UUID NOT NULL,
+    UserId INTEGER PRIMARY KEY,
+    Login TEXT NOT NULL,
+    UserPassword TEXT NOT NULL,
+    Tipo VARCHAR(50) NOT NULL,
+    IdOriginal INTEGER NOT NULL
     );
 
-DROP TABLE IF EXISTS UserTypes CASCADE;
-CREATE TABLE UserTypes (
-    UserId INTEGER PRIMARY KEY,
-    Tipo TEXT,
-    IdOriginal INTEGER
-    );
-ALTER TABLE UserTypes ADD CONSTRAINT TIPO_ID UNIQUE (Tipo,IdOriginal);
-ALTER TABLE UserTypes ADD CONSTRAINT fk_UserId FOREIGN KEY (UserId) REFERENCES Users(UserId);
+CREATE SEQUENCE UserIdSeq;
+ALTER TABLE Users ALTER COLUMN UserId SET DEFAULT nextval('UserIdSeq');
+ALTER TABLE Users ADD CONSTRAINT tipo_id_unique_pair UNIQUE (Tipo,IdOriginal);
 
 ALTER SEQUENCE UserIdSeq
 OWNED BY Users.UserId;
 
+-- Usuario de admin
+INSERT INTO public.Users (Login, UserPassword, Tipo, IdOriginal)
+    VALUES('admin', MD5('admin'), 'admin', 0);
+
+--==============================================================================================================
+-- Tabela de log de acesso
+--==============================================================================================================
+DROP TABLE IF EXISTS log_table CASCADE;
+CREATE TABLE log_table (
+    UserId INTEGER,
+    Time TIMESTAMP
+    );
+
 --==============================================================================================================
 -- Triggers
 --==============================================================================================================
-
--- Create user for constructors
-
--- Create user for new drivers
-CREATE OR REPLACE FUNCTION insert_user_from_driver_func(
-    driver_name VARCHAR
-)
-  RETURNS trigger AS
-$$
-BEGIN
-    INSERT INTO "User" ("Login", "Password")
-         VALUES(driver_name, MD5("password"));
-
-RETURN NEW;
-END;
-$$
+-- Criar usuarios para pilotos
+CREATE OR REPLACE FUNCTION insert_user_entity_from_driver_func()
+RETURNS trigger AS $driver_trig$
+	BEGIN
+    	INSERT INTO public.Users (Login, UserPassword, Tipo, IdOriginal)
+        	VALUES(CONCAT(NEW.DriverRef,'_d'), MD5(NEW.DriverRef), 'piloto', NEW.DriverId);
+    	RETURN NULL;
+	END;
+$driver_trig$
 LANGUAGE 'plpgsql';
 
-DROP TRIGGER IF EXISTS UserTypes;
+DROP TRIGGER IF EXISTS insert_user_from_driver ON public."Driver";
 CREATE TRIGGER insert_user_from_driver
-  AFTER INSERT
-  ON "Driver"
+  AFTER INSERT ON Driver
   FOR EACH ROW
-  EXECUTE PROCEDURE insert_user_from_driver_func(OLD.Name);
+  EXECUTE FUNCTION insert_user_entity_from_driver_func();
+
+-- Criar usuarios para escuderias
+CREATE OR REPLACE FUNCTION insert_user_entity_from_constructor_func()
+  RETURNS trigger AS $constructor_trig$
+BEGIN
+    INSERT INTO public.Users (Login, UserPassword, Tipo, IdOriginal)
+         VALUES(CONCAT(NEW.ConstructorRef, '_c'), MD5(NEW.ConstructorRef), 'escuderia', NEW.ConstructorId);
+    RETURN NULL;
+END;
+$constructor_trig$
+LANGUAGE 'plpgsql';
+
+DROP TRIGGER IF EXISTS insert_user_from_constructor ON public."Constructors";
+CREATE TRIGGER insert_user_from_constructor
+  AFTER INSERT
+  ON Constructors
+  FOR EACH ROW
+  EXECUTE PROCEDURE insert_user_entity_from_constructor_func();
 
 --==============================================================================================================
 --== Carrega as tabelas ========================================================================================
 SET DateStyle to DMY;
 PERFORM LoadFile(DirLocal, 'circuits.csv', 'Circuits', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
 PERFORM LoadFile(DirLocal, 'constructors.csv', 'Constructors', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
--- PERFORM LoadFile(DirLocal, 'constructor_standings.csv', 'ConstructorStandings', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
--- PERFORM LoadFile(DirLocal, 'constructor_results.csv', 'ConstructorResults', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
+-- -- PERFORM LoadFile(DirLocal, 'constructor_standings.csv', 'ConstructorStandings', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
+-- -- PERFORM LoadFile(DirLocal, 'constructor_results.csv', 'ConstructorResults', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
 PERFORM LoadFile(DirLocal, 'driver_standings.csv', 'DriverStandings', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
 PERFORM LoadFile(DirLocal, 'drivers.csv', 'Driver', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
 PERFORM LoadFile(DirLocal, 'lap_times.csv', 'LapTimes', 'DELIMITER '','', NULL ''\N'', HEADER true, FORMAT CSV');
@@ -344,8 +363,8 @@ PERFORM LoadFile(DirLocal, 'status.csv', 'Status', 'DELIMITER '','', NULL ''\N''
 PERFORM LoadFile(DirLocal, 'airports.csv', 'Airports', 'DELIMITER '','', NULL '''', HEADER true, FORMAT CSV');
 PERFORM LoadFile(DirLocal, 'countries.csv', 'Countries', 'DELIMITER '','', NULL '''', HEADER true, FORMAT CSV');
 
----- -- Faz a leitura da tabela Cities15K como uma coleção de linhas ---------------------------------------------------
-PERFORM LoadFile(DirLocal, 'cities15000.txt', 'GeoCities15KTEXT', 'DELIMITER E''\b'', NULL '''', HEADER false');
+-- ---- -- Faz a leitura da tabela Cities15K como uma coleção de linhas ---------------------------------------------------
+PERFORM LoadFile(DirLocal, 'cities15000.tsv', 'GeoCities15KTEXT', 'DELIMITER E''\b'', NULL '''', HEADER false');
 END $$;
 
 ---- -- Tratar a tabela GeoCities15K ------------------------------------------------------------------------
@@ -434,3 +453,17 @@ CREATE VIEW Tables AS
     SELECT 'GeoCities15K'         AS Table, Count(*) NroTuplas FROM GeoCities15K;
 
 Table Tables;
+
+--==============================================================================================================
+-- Indices e extensões
+--==============================================================================================================
+-- Relatorio 2
+CREATE EXTENSION IF NOT EXISTS Cube;
+CREATE EXTENSION IF NOT EXISTS EarthDistance;
+CREATE INDEX latdeg_longdeg_idx ON airports(latdeg, longdeg);
+
+-- Relatorio 3
+CREATE INDEX driverid_idx ON results(driverid);
+
+-- Relatorio 5
+CREATE INDEX raceid_idx on results(raceid);
