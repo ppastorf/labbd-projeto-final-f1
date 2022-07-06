@@ -67,14 +67,14 @@ export default {
     }
   }, methods: {
         submit(){
-            axios.post('https://eoibsmqf2fnhk9b.m.pipedream.net', this.form)
+            axios.post('http://localhost:5000/login', this.form)
                 .then(function( response ){
                     console.log(response.data);
                      if(response.data){
-                         if(response.data.data.tipo == "admin"){
+                         if(response.data.tipo == "admin"){
                             this.$router.push({ name: 'Admin' , params: { username: this.form.username }})
                             console.log("redirecionando");
-                         }else if(response.data.data.tipo == "piloto"){
+                         }else if(response.data.tipo == "piloto"){
                             this.$router.push({ name: 'User' , params: { username: this.form.username }})
                             console.log(this.form.username);
                          }

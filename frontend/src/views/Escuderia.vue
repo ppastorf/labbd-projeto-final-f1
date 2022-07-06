@@ -18,22 +18,9 @@
                       <div class="col-auto d-flex align-items-center"><img class="avatar avatar-lg p-1" src="https://therichpost.com/wp-content/uploads/2021/03/avatar2.png" alt="Avatar"></div>
                       <div class="col">
                         <label class="form-label">Name</label>
-                        <input class="form-control" placeholder="Your name">
+                        <label class="form-label">{{username}}</label>
                       </div>
                     </div>
-                    <div class="mb-3"> 
-                      <label class="form-label">Bio</label>
-                      <textarea class="form-control" rows="8">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</textarea>
-                    </div>
-                    <div class="mb-3"> 
-                      <label class="form-label">Email</label>
-                      <input class="form-control" placeholder="you@domain.com">
-                    </div>
-                    <label class="form-label">Password</label>
-                    <input class="form-control" type="password" value="password">
-                  </div>
-                  <div class="card-footer text-end">
-                    <button class="btn btn-primary">Save</button>
                   </div>
                 </form>
               </div>
@@ -105,25 +92,26 @@ export default {
       rel6: [],
       search: null,
       resultSearch: [],
-      isHidden: false
+      isHidden: false,
+      username: ''
     }
   },
   methods: {
     async getDataOverview() {
       axios
-      .get('https://eox56vpp94quv3j.m.pipedream.net')
+      .get('http://localhost:5000/overviewpiloto')
       .then(response => (this.info = response))
     },
     async getDataRel5() {
       axios
-      .get('https://eov5ar2pl5ebk1h.m.pipedream.net')
+      .get('http://localhost:5000/rel5')
       .then(response => (this.rel5 = response))
     },
     submitSearch(){
-    axios.get('https://eoc5dvu9sek9v4m.m.pipedream.net?name='+ this.search)
+    axios.get('http://localhost:5000/pilotosearch?'+ this.search)
         .then(function( response ){
             console.log(response.data);
-            this.resultSearch = response.data.data;
+            this.resultSearch = response.data;
             this.isHidden = !this.isHidden;
               // if(response.data){
               //     if(response.data.user_type == "admin"){
@@ -145,6 +133,9 @@ export default {
   created() {
     this.getDataOverview();
     this.getDataRel5();
-  },
+  },mounted(){
+      this.username = this.$route.params.username
+      console.log(this.$route.params)
+  }
 }
 </script>
