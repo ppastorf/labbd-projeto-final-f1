@@ -1,43 +1,44 @@
 package main
 
 import (
+	"crypto/md5"
 	"fmt"
-  "os"
-  "strings"
+	"strconv"
+	"strings"
+
+	"github.com/labstack/echo/v4"
 )
 
-func selectProperUserPage(user *User) string{
-	switch user.Tipo {
-	case "Admin":
-	  return "/admin"
-	case "Escuderia":
-	  return "/escuderia"
-	case "Piloto":
-	  return "/piloto"
-	default:
-	  return "/404.html"
+func md5Encrypt(password string) string {
+	return fmt.Sprintf("%x", md5.Sum([]byte(password)))
+}
+
+func strArrayContains(arr []string, val string) bool {
+	for _, e := range arr {
+		if e == val {
+			return true
+		}
 	}
+	return false
 }
 
-func renderHTML(filename string, nome map[string]string) string {
-  html := readFile(filename)
-  for k,v := range nome{
-	  html = strings.ReplaceAll(html, "{{"+k+"}}", v)
-  }
+func getAuthData(c echo.Context) (userId int, userType string, err error) {
+	userIdCookie, noUserId := c.Cookie("userid")
+	userTipoCookie, noTipo := c.Cookie("tipo")
 
-  return html
-}
-
-func checkFile(e error) {
-	if e != nil {
-		panic(e)
+	if noUserId != nil || noTipo != nil || userIdCookie.Value == "" || userTipoCookie.Value == "" {
+		return 0, "", fmt.Errorf("Missing authentication cookies")
 	}
-}
-  
-func readFile(file string) string{
-	dat, err := os.ReadFile(file)
-	checkFile(err)
-	fmt.Print(string(dat))
-	
-  return string(dat)
+
+	userId, err = strconv.Atoi(userIdCookie.Value)
+	if err != nil {
+		return 0, "", fmt.Errorf("Invalid value for 'userid' cookie")
+	}
+
+	tipo := strings.ToLower(userTipoCookie.Value)
+	if tipo != "admin" && tipo != "escuderia" && tipo != "piloto" {
+		return 0, "", fmt.Errorf("Invalid value for 'tipo' cookie")
+	}
+
+	return userId, userType, nil
 }

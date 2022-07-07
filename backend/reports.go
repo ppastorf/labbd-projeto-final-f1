@@ -1,63 +1,57 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"strconv"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 )
 
 // Reports
-func (s *Service) GetStatusReport(c echo.Context) error {
-	userIdCookie, err := c.Cookie("userid")
-	userTipoCookie, _ := c.Cookie("tipo")
+func (s *Service) StatusReport(c echo.Context) error {
+	userId, userType, err := getAuthData(c)
 	if err != nil {
-		fmt.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to authenticate user: %s\n", err.Error())
 	}
-
-	userId, err := strconv.Atoi(userIdCookie.Value)
+	results, err := s.Store.GetStatusReport(userId, userType)
 	if err != nil {
-		fmt.Println("Erro Atoi: ", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get data: %s\n", err.Error())
 	}
 
-	tipo := strings.ToLower(userTipoCookie.Value)
-	if tipo != "admin" && tipo != "escuderia" && tipo != "piloto" {
-		return c.NoContent(http.StatusForbidden)
-	}
-
-	resultsByEachStatus, err := s.Store.GetResultsByEachStatus(userId, tipo)
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(http.StatusOK, resultsByEachStatus)
+	return c.JSON(http.StatusOK, results)
 }
 
-// func (s *Service) GetAdminReport2(c echo.Context) error {
-//   userId, err := c.Cookie("userid")
-//   tipo, _ := c.Cookie("tipo")
-//   if err != nil {
-//     fmt.Println(err)
-//   }
+func (s *Service) AdminReport(c echo.Context) error {
+	cidade := c.QueryParam("cidade")
+	results, err := s.Store.GetAdminReport(cidade)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get Admin Report data: %s\n", err.Error())
+	}
 
-//   if userId == nil {
-//     return c.Redirect(http.StatusForbidden, "/login")
-//   }
+	return c.JSON(http.StatusOK, results)
+}
 
-//   if tipo.Value != "Admin" {
-//     return c.NoContent(http.StatusForbidden)
-//   }
+func (s *Service) ConstructorReport(c echo.Context) error {
+	userId, _, err := getAuthData(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to authenticate user: %s\n", err.Error())
+	}
+	results, err := s.Store.GetConstructorReport(userId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get Constructor Report data: %s\n", err.Error())
+	}
 
-//   intUserId, err := strconv.Atoi(userId.Value)
-//   if err != nil {
-//     fmt.Println("Erro Atoi: ", err)
-//   }
-//   GetResultsByEachStatus, err := s.Store.GetAdminReport2(intUserId, tipo.Value)
-//   if err != nil {
-// 		return err
-// 	}
+	return c.JSON(http.StatusOK, results)
+}
 
-//   return c.JSON(http.StatusOK, GetResultsByEachStatus)
-// }
+func (s *Service) DriverReport(c echo.Context) error {
+	userId, _, err := getAuthData(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to authenticate user: %s\n", err.Error())
+	}
+	results, err := s.Store.GetDriverReport(userId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get Driver Report data: %s\n", err.Error())
+	}
+
+	return c.JSON(http.StatusOK, results)
+}
