@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"regexp"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -15,14 +17,14 @@ type Store interface {
 
 	InsertConstructor(values CreateConstructorRequest) error
 	InsertDriver(values CreateDriverRequest) error
-	SearchPilotByForename(constructorId int, forename string) (PilotInfo, error)
+	SearchPilotByForename(userId int, forename string) (PilotInfo, error)
 
 	GetAdminOverviewInfo() (*AdminOverviewInfo, error)
 	GetConstructorOverviewInfo(userId int) (*ConstructorOverviewInfo, error)
 	GetDriverOverviewInfo(userId int) (*DriverOverviewInfo, error)
 
 	GetAdminReport(city string) ([]AdminReport, error)
-	GetConstructorReport(constructorId int) ([]ConstructorReport, error)
+	GetConstructorReport(userId int) ([]ConstructorReport, error)
 	GetDriverReport(driverId int) ([]DriverReport, error)
 }
 
@@ -35,6 +37,7 @@ func (s *StoreImpl) Close() error {
 }
 
 func (s *StoreImpl) insert(table, query string) error {
+	fmt.Printf("Insert query: %s\n\n\n\n", query)
 	result, err := s.DB.Exec(query)
 	if err != nil {
 		log.Printf("Storage error: %s\n", err.Error())
@@ -74,43 +77,51 @@ func (s *StoreImpl) GetLoginUser(login string, password string) (*User, error) {
 // Admin
 func (s *StoreImpl) InsertConstructor(values CreateConstructorRequest) error {
 	query := fmt.Sprintf(`
-    INSERT INTO public.Constructors (ConstructorRef, Name, Nationality, Url)
-      VALUES('%s', '%s', '%s',' %s',);`,
+    INSERT INTO public.Constructors (ConstructorId, ConstructorRef, Name, Nationality, Url)
+      VALUES((SELECT MAX(ConstructorId) FROM Constructors) + 1, '%s', '%s', '%s',' %s');`,
 		values.ConstructorRef, values.Name, values.Nationality, values.Url,
 	)
-	return s.insert(query, "Constructor")
+	return s.insert("Constructor", query)
 }
 
 func (s *StoreImpl) InsertDriver(values CreateDriverRequest) error {
 	query := fmt.Sprintf(`
-    INSERT INTO public.Drivers (Driverref, Number, Code, Forename, Surname, Date of Birth, Nationality)
-      VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', );`,
+    INSERT INTO public.Driver (DriverId, Driverref, Number, Code, Forename, Surname, Dob, Nationality)
+      VALUES((SELECT MAX(DriverId) FROM Driver) + 1, '%s', '%s', '%s', '%s', '%s', '%s', '%s');`,
 		values.DriverRef, values.Number, values.Code, values.Forename, values.Surname, values.DateOfBirth, values.Nationality,
 	)
-	return s.insert(query, "Drivers")
+	return s.insert("Drivers", query)
 }
 
 // Constructor
 type PilotInfo struct {
-	Nome           *string `form:"name" json:"name" db:"name"`
-	DataNascimento *string `form:"data_nascimento" json:"data_nascimento" db:"data_nascimento"`
-	Nacionalidade  *string `form:"nacionalidade" json:"nacionalidade" db:"nacionalidade"`
+	Nome           *string `json:"name" db:"nome_completo"`
+	DataNascimento *string `json:"data_nascimento" db:"data_nascimento"`
+	Nacionalidade  *string `json:"nacionalidade" db:"nacionalidade"`
 }
 
-func (s *StoreImpl) SearchPilotByForename(constructorId int, forename string) (PilotInfo, error) {
+func (s *StoreImpl) SearchPilotByForename(userId int, forename string) (PilotInfo, error) {
 	result := []PilotInfo{}
 	query := fmt.Sprintf(`
-		SELECT nome_completo, data_nascimento, nacionalidade
-			FROM (SELECT DISTINCT driverid FROM results
-				WHERE constructorid = %d) x
-			LEFT JOIN (
-				SELECT driverid, CONCAT(forename, ' ', surname) AS nome_completo, dob AS data_nascimento, nationality AS nacionalidade
-				FROM driver
-				WHERE forename=%s
-			) y ON x.driverid = y.driverid;
-		`, constructorId, forename)
+	SELECT y.nome_completo,
+			y.data_nascimento,
+			y.nacionalidade
+		FROM
+		(SELECT DISTINCT driverid
+		FROM results
+		WHERE constructorid = (select idoriginal from users where userid = %d)) x
+		INNER JOIN
+		(SELECT driverid,
+			CONCAT(forename, ' ', surname) AS nome_completo,
+			dob AS data_nascimento,
+			nationality AS nacionalidade
+		FROM driver
+		WHERE forename='%s') y ON x.driverid = y.driverid;
+	`, userId, forename)
+
+	fmt.Printf("Search Pilot query: %s\n", query)
+
 	if err := s.DB.Select(&result, query); err != nil {
-		log.Println("Failed to search Driver by forename: ", err.Error())
 		return PilotInfo{}, err
 	}
 	return result[0], nil
@@ -129,33 +140,118 @@ type AdminOverviewInfo struct {
 }
 
 func (s *StoreImpl) GetAdminOverviewInfo() (*AdminOverviewInfo, error) {
-	// query := fmt.Sprintf(``)
-	return nil, nil
+	var pilotos []int
+	var escuderias []int
+	var corridas []int
+	var temporadas []int
+	var err error
+
+	err = s.DB.Select(&pilotos, fmt.Sprintf(`select count(*) from driver`))
+	if err != nil {
+		log.Printf("Failed to get #drivers info for Admin: %s\n", err.Error())
+		return nil, err
+	}
+	err = s.DB.Select(&escuderias, fmt.Sprintf(`select count(*) from constructors`))
+	if err != nil {
+		log.Printf("Failed to get #escuderias info for Admin: %s\n", err.Error())
+		return nil, err
+	}
+	err = s.DB.Select(&corridas, fmt.Sprintf(`select count(*) from races`))
+	if err != nil {
+		log.Printf("Failed to get #corridas info for Admin: %s\n", err.Error())
+		return nil, err
+	}
+	err = s.DB.Select(&temporadas, fmt.Sprintf(`select count(*) from seasons`))
+	if err != nil {
+		log.Printf("Failed to get #temporadas info for Admin: %s\n", err.Error())
+		return nil, err
+	}
+	return &AdminOverviewInfo{
+		Pilotos:    pilotos[0],
+		Escuderias: escuderias[0],
+		Corridas:   corridas[0],
+		Temporadas: temporadas[0],
+	}, nil
 }
 
 // Constructor
 type ConstructorOverviewInfo struct {
 	Vitorias      int
 	PilotosUnicos int
-	PrimeiroAno   int
-	UltimoAno     int
+	PrimeiroAno   string
+	UltimoAno     string
 }
 
 func (s *StoreImpl) GetConstructorOverviewInfo(userId int) (*ConstructorOverviewInfo, error) {
-	// query := fmt.Sprintf(``)
-	return nil, nil
+	var err error
+	var vitorias []int
+	var pilotos []int
+	var anos []string
+
+	err = s.DB.Select(&vitorias, fmt.Sprintf(`SELECT encontrar_quantidade_vitorias_escuderia((select idoriginal from users where userid = %d))`, userId))
+	if err != nil {
+		log.Printf("Failed to get encontrar_quantidade_vitorias_escuderia info for Constructor of userId %d: %s\n", userId, err.Error())
+		return nil, err
+	}
+	err = s.DB.Select(&pilotos, fmt.Sprintf(`SELECT encontrar_quantidade_pilotos_escuderia((select idoriginal from users where userid = %d))`, userId))
+	if err != nil {
+		log.Printf("Failed to get encontrar_quantidade_pilotos_escuderia info for Constructor of userId %d: %s\n", userId, err.Error())
+		return nil, err
+	}
+	err = s.DB.Select(&anos, fmt.Sprintf(`SELECT encontrar_primeiro_ultimo_ano_escuderia((select idoriginal from users where userid = %d))`, userId))
+	if err != nil {
+		log.Printf("Failed to get encontrar_primeiro_ultimo_ano_escuderia info for Constructor of userId %d: %s\n", userId, err.Error())
+		return nil, err
+	}
+
+	re, err := regexp.Compile(`[()]`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	anos2 := strings.Split(re.ReplaceAllString(anos[0], ""), ",")
+
+	return &ConstructorOverviewInfo{
+		Vitorias:      vitorias[0],
+		PilotosUnicos: pilotos[0],
+		PrimeiroAno:   anos2[0],
+		UltimoAno:     anos2[1],
+	}, nil
 }
 
 // Driver
 type DriverOverviewInfo struct {
 	Vitorias    int
-	PrimeiroAno int
-	UltimoAno   int
+	PrimeiroAno string
+	UltimoAno   string
 }
 
 func (s *StoreImpl) GetDriverOverviewInfo(userId int) (*DriverOverviewInfo, error) {
-	// query := fmt.Sprintf(``)
-	return nil, nil
+	var err error
+	var vitorias []int
+	var anos []string
+
+	err = s.DB.Select(&vitorias, fmt.Sprintf(`SELECT encontrar_quantidade_vitorias_piloto((select idoriginal from users where userid = %d))`, userId))
+	if err != nil {
+		log.Printf("Failed to get encontrar_quantidade_vitorias_piloto info for Driver of userId %d: %s\n", userId, err.Error())
+		return nil, err
+	}
+	err = s.DB.Select(&anos, fmt.Sprintf(`SELECT encontrar_primeiro_ultimo_ano_piloto((select idoriginal from users where userid = %d))`, userId))
+	if err != nil {
+		log.Printf("Failed to get encontrar_primeiro_ultimo_ano_piloto info for Driver of userId %d: %s\n", userId, err.Error())
+		return nil, err
+	}
+
+	re, err := regexp.Compile(`[()]`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	anos2 := strings.Split(re.ReplaceAllString(anos[0], ""), ",")
+
+	return &DriverOverviewInfo{
+		Vitorias:    vitorias[0],
+		PrimeiroAno: anos2[0],
+		UltimoAno:   anos2[1],
+	}, nil
 }
 
 // ============================================================================
@@ -180,7 +276,7 @@ func (s *StoreImpl) GetStatusReport(userId int, userType string) ([]StatusResult
 		query = fmt.Sprintf(`
 			SELECT status.status, COUNT(results.statusid) 
 				FROM results INNER JOIN status ON results.statusid = status.statusid INNER JOIN constructors ON constructors.constructorid = results.constructorid
-				WHERE constructors.constructorid = %v
+				WHERE constructors.constructorid = (select idoriginal from users where userid = %d)
 				GROUP BY status.statusid, constructors.constructorid
 				ORDER BY count DESC
 		`, userId)
@@ -188,7 +284,7 @@ func (s *StoreImpl) GetStatusReport(userId int, userType string) ([]StatusResult
 		query = fmt.Sprintf(`
 			SELECT status.status, COUNT(results.statusid)
 				FROM results INNER JOIN status ON results.statusid = status.statusid INNER JOIN driver ON driver.driverid = results.driverid
-				WHERE driver.driverid = %v
+				WHERE driver.driverid = (select idoriginal from users where userid = %d)
 				GROUP BY status.statusid, driver.driverid
 				ORDER BY count DESC
 		`, userId)
@@ -196,6 +292,7 @@ func (s *StoreImpl) GetStatusReport(userId int, userType string) ([]StatusResult
 		return nil, fmt.Errorf("GetResultsByEachStatus default case")
 	}
 
+	fmt.Printf("Status Report query: %s\n", query)
 	if err := s.DB.Select(&statusResult, query); err != nil {
 		log.Printf("Failed to get status report for %s: %s\n", userType, err.Error())
 		return nil, err
@@ -221,7 +318,7 @@ func (s *StoreImpl) GetAdminReport(city string) ([]AdminReport, error) {
 				city AS cidade_aeroporto,
 				TYPE AS tipo_aeroporto,
 				earth_distance(ll_to_earth(a.latdeg, a.longdeg), ll_to_earth(c.lat, c.long)) AS distancia
-			FROM (SELECT name, lat, long FROM geocities15k WHERE name='%v') c
+			FROM (SELECT name, lat, long FROM geocities15k WHERE name='%s') c
 			LEFT JOIN (
 				SELECT iatacode, name, city, TYPE, latdeg, longdeg
 				FROM airports
@@ -243,20 +340,33 @@ type ConstructorReport struct {
 	Vitorias     int    `json:"vitorias" db:"vitorias"`
 }
 
-func (s *StoreImpl) GetConstructorReport(constructorId int) ([]ConstructorReport, error) {
+func (s *StoreImpl) GetConstructorReport(userId int) ([]ConstructorReport, error) {
 	report := []ConstructorReport{}
 	query := fmt.Sprintf(`
-		SELECT nome_completo, COALESCE(vitorias, 0) AS vitorias
-			FROM (SELECT p.driverid, nome_completo
-				FROM (SELECT DISTINCT driverid FROM results WHERE constructorid=%d) p
-				LEFT JOIN (SELECT driverid, CONCAT(forename, ' ', surname) AS nome_completoFROM driver) n ON p.driverid = n.driverid
-			) parcial
-			LEFT JOIN (
-				SELECT driverid, count(*) AS vitorias
-				FROM results WHERE constructorid=%d AND POSITION=1
-				GROUP BY driverid
-			) AS v ON parcial.driverid = v.driverid;
-	`, constructorId, constructorId)
+		SELECT nome_completo,
+		COALESCE(vitorias, 0) AS vitorias
+		FROM
+		(SELECT p.driverid,
+			nome_completo
+		FROM
+		(SELECT DISTINCT driverid
+		FROM results
+		WHERE constructorid=(select idoriginal from users where userid = %d)) p
+
+		LEFT JOIN
+		(SELECT driverid,
+				CONCAT(forename, ' ', surname) AS nome_completo
+		FROM driver) n 
+		ON p.driverid = n.driverid) parcial
+		LEFT JOIN
+		(SELECT driverid,
+			count(*) AS vitorias
+		FROM results
+		WHERE constructorid=(select idoriginal from users where userid = %d)
+		AND POSITION=1
+		GROUP BY driverid) AS v
+		ON parcial.driverid = v.driverid;
+	`, userId, userId)
 
 	fmt.Printf("Constructor Report query: %s\n", query)
 	if err := s.DB.Select(&report, query); err != nil {
@@ -272,15 +382,15 @@ type DriverReport struct {
 	Vitoria *int    `json:"vitoria" db:"vitoria"`
 }
 
-func (s *StoreImpl) GetDriverReport(driverId int) ([]DriverReport, error) {
+func (s *StoreImpl) GetDriverReport(userId int) ([]DriverReport, error) {
 	report := []DriverReport{}
 	query := fmt.Sprintf(`
 		SELECT YEAR AS ano, name AS corrida, SUM(POSITION) AS vitoria
-			FROM (SELECT POSITION, driverid, raceid FROM results WHERE driverid=%d AND POSITION=1) x
+			FROM (SELECT POSITION, driverid, raceid FROM results WHERE driverid=(select idoriginal from users where userid = %d) AND POSITION=1) x
 			LEFT JOIN (SELECT YEAR, raceid, name FROM races) y ON x.raceid = y.raceid
 			GROUP BY ROLLUP(ano, corrida)
 			ORDER BY ano, corrida;
-	`, driverId)
+	`, userId)
 
 	fmt.Printf("Driver Report query: %s\n", query)
 	if err := s.DB.Select(&report, query); err != nil {

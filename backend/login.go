@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -49,6 +50,8 @@ func (s *Service) Login(c echo.Context) error {
 	idCookie.Expires = time.Now().Add(24 * time.Hour)
 	c.SetCookie(idCookie)
 
-	return c.Redirect(http.StatusFound, c.Request().URL.Path)
+	redirectUrl := fmt.Sprintf("/%s/overview", user.Tipo)
+
+	return c.Redirect(http.StatusFound, redirectUrl)
 	// return http.Redirect()
 }

@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	host     = "localhost"
+	host     = "postgres"
 	port     = 5432
 	user     = "postgres"
 	password = "changeme"
@@ -23,25 +23,23 @@ func getConnString() string {
 }
 
 type Person struct {
-  FirstName string `db:"first_name"`
-  LastName  string `db:"last_name"`
-  Email     string
+	FirstName string `db:"first_name"`
+	LastName  string `db:"last_name"`
+	Email     string
 }
 
 func createDB() *sqlx.DB {
 	db, err := sqlx.Open("postgres", getConnString())
-  db = db.Unsafe()
+	db = db.Unsafe()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-  // Ping test
-  err = db.Ping()
-  if err != nil {
-    panic(err)
-  }
-  
-  return db
+	// Ping test
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+
+	return db
 }
-
-

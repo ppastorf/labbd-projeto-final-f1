@@ -471,3 +471,89 @@ CREATE INDEX raceid_idx on results(raceid);
 --==============================================================================================================
 -- Funcoes de overview
 --==============================================================================================================
+-- Escuderia
+
+-- Quantidade de vitórias da escuderia
+-- SELECT encontrar_quantidade_vitorias_escuderia(<ID_ESCUDERIA>)
+CREATE OR REPLACE FUNCTION encontrar_quantidade_vitorias_escuderia(id_escuderia INTEGER)
+	RETURNS INTEGER AS $$
+	DECLARE
+  		n_vitorias INTEGER;
+ 	BEGIN
+		SELECT count(*) INTO n_vitorias
+  		FROM results
+  		WHERE constructorid=id_escuderia AND position=1;
+		
+		RETURN n_vitorias;
+	END;
+	$$ LANGUAGE 'plpgsql';
+
+
+-- Quantidade de pilotos diferentes que já correram pela escuderia
+-- SELECT encontrar_quantidade_pilotos_escuderia(<ID_ESCUDERIA>)
+CREATE OR REPLACE FUNCTION encontrar_quantidade_pilotos_escuderia(id_escuderia INTEGER)
+	RETURNS INTEGER AS $$
+	DECLARE
+  		n_pilotos INTEGER;
+ 	BEGIN
+		SELECT count(DISTINCT driverid) INTO n_pilotos
+  		FROM results
+  		WHERE constructorid=id_escuderia;
+		
+		RETURN n_pilotos;
+	END;
+	$$ LANGUAGE 'plpgsql';
+
+-- Primeiro e ultimo ano em que ha dados da escuderia na base (pela tabela RESULTS)
+-- SELECT encontrar_primeiro_ultimo_ano_escuderia(<ID_ESCUDERIA>)
+CREATE OR REPLACE FUNCTION encontrar_primeiro_ultimo_ano_escuderia(id_escuderia INTEGER)
+	RETURNS TABLE(primeiro_ano INTEGER, segundo_ano INTEGER) AS $$
+ 	BEGIN
+		RETURN query
+			SELECT 	MIN(YEAR) AS primeiro_ano, MAX(YEAR) AS ultimo_ano
+			FROM
+			  (SELECT raceid,
+					  constructorid
+			   FROM results
+			   WHERE constructorid=id_escuderia) constructor_races
+			LEFT JOIN
+			  (SELECT raceid,
+					  YEAR
+			   FROM races) race_years ON constructor_races.raceid = race_years.raceid;		
+	END;
+	$$ LANGUAGE 'plpgsql';
+
+-- Piloto
+
+-- Quantidade de vitórias do piloto
+-- SELECT encontrar_quantidade_vitorias_piloto(<ID_PILOTO>)
+CREATE OR REPLACE FUNCTION encontrar_quantidade_vitorias_piloto(id_piloto INTEGER)
+	RETURNS INTEGER AS $$
+	DECLARE
+  		n_vitorias INTEGER;
+ 	BEGIN
+		SELECT count(*) INTO n_vitorias
+  		FROM results
+  		WHERE driverid=id_piloto AND position=1;
+		RETURN n_vitorias;
+	END;
+	$$ LANGUAGE 'plpgsql';
+
+-- Primeiro e ultimo ano em que ha dados do piloto na base (pela tabela RESULTS)
+-- SELECT encontrar_primeiro_ultimo_ano_piloto(<ID_PILOTO>)
+CREATE OR REPLACE FUNCTION encontrar_primeiro_ultimo_ano_piloto(id_piloto INTEGER)
+	RETURNS TABLE(primeiro_ano INTEGER, segundo_ano INTEGER) AS $$
+ 	BEGIN
+		RETURN query
+			SELECT 	MIN(YEAR) AS primeiro_ano, MAX(YEAR) AS ultimo_ano
+			FROM
+			  (SELECT raceid,
+					  driverid
+			   FROM results
+			   WHERE driverid=id_piloto) driver_races
+			LEFT JOIN
+			  (SELECT raceid,
+					  YEAR
+			   FROM races) race_years ON driver_races.raceid = race_years.raceid;		
+	END;
+	$$ LANGUAGE 'plpgsql';

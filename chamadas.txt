@@ -1,0 +1,5 @@
+
+# Create constructor
+http://localhost:8080/admin/create-constructor?constructorref=teste&name=teste&nationality=Brazilian&url=teste.com.br
+
+http://localhost:8080/admin/create-driver?driverref=teste&number=420&code=FUL&forename=fulano&surname=dasilva&date_of_birth=1985-01-07&nationality=Brazilian

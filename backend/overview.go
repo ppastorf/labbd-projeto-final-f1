@@ -10,14 +10,6 @@ func (s *Service) AdminOverview(c echo.Context) error {
 	response := &AdminOverviewInfo{}
 	var err error
 
-	userId, userType, err := getAuthData(c)
-	if err != nil {
-		return c.Redirect(http.StatusPermanentRedirect, "/index.html")
-	}
-	if userType != "admin" && userId != 0 {
-		return echo.NewHTTPError(http.StatusForbidden)
-	}
-
 	response, err = s.Store.GetAdminOverviewInfo()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get admin data")
@@ -29,12 +21,9 @@ func (s *Service) ConstructorOverview(c echo.Context) error {
 	response := &ConstructorOverviewInfo{}
 	var err error
 
-	userId, userType, err := getAuthData(c)
+	userId, _, err := getAuthData(c)
 	if err != nil {
-		return c.Redirect(http.StatusPermanentRedirect, "/index.html")
-	}
-	if userType != "escuderia" {
-		return echo.NewHTTPError(http.StatusForbidden)
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to authenticate user: %s\n", err.Error())
 	}
 
 	response, err = s.Store.GetConstructorOverviewInfo(userId)
@@ -48,12 +37,9 @@ func (s *Service) DriverOverview(c echo.Context) error {
 	response := &DriverOverviewInfo{}
 	var err error
 
-	userId, userType, err := getAuthData(c)
+	userId, _, err := getAuthData(c)
 	if err != nil {
-		return c.Redirect(http.StatusPermanentRedirect, "/index.html")
-	}
-	if userType != "piloto" {
-		return echo.NewHTTPError(http.StatusForbidden)
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to authenticate user: %s\n", err.Error())
 	}
 
 	response, err = s.Store.GetDriverOverviewInfo(userId)

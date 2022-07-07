@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -13,10 +12,10 @@ import (
 // ============================================================================
 // Create constructor
 type CreateConstructorRequest struct {
-	ConstructorRef string `json:"constructorref"`
-	Name           string `json:"name"`
-	Nationality    string `json:"nationality"`
-	Url            string `json:"url"`
+	ConstructorRef string `json:"constructorref" query:"constructorref"`
+	Name           string `json:"name" query:"name"`
+	Nationality    string `json:"nationality" query:"nationality"`
+	Url            string `json:"url" query:"url"`
 }
 
 func (s *Service) CreateConstructor(c echo.Context) error {
@@ -33,19 +32,18 @@ func (s *Service) CreateConstructor(c echo.Context) error {
 	}
 
 	log.Printf("Constructor '%s' created", request.Name)
-
-	return c.NoContent(http.StatusCreated)
+	return c.JSON(http.StatusCreated, "Escuderia criada com sucesso")
 }
 
 // Create driver
 type CreateDriverRequest struct {
-	DriverRef   string `json:"driverref"`
-	Number      string `json:"number"`
-	Code        string `json:"code"`
-	Forename    string `json:"forename"`
-	Surname     string `json:"surname"`
-	DateOfBirth string `json:"date_of_birth"`
-	Nationality string `json:"nationality"`
+	DriverRef   string `json:"driverref" query:"driverref"`
+	Number      string `json:"number" query:"number"`
+	Code        string `json:"code" query:"code"`
+	Forename    string `json:"forename" query:"forename"`
+	Surname     string `json:"surname" query:"surname"`
+	DateOfBirth string `json:"date_of_birth" query:"date_of_birth"`
+	Nationality string `json:"nationality" query:"nationality"`
 }
 
 func (s *Service) CreateDriver(c echo.Context) error {
@@ -63,7 +61,7 @@ func (s *Service) CreateDriver(c echo.Context) error {
 
 	log.Printf("Driver '%s %s' created", request.Forename, request.Surname)
 
-	return c.NoContent(http.StatusCreated)
+	return c.JSON(http.StatusCreated, "Piloto criado com sucesso")
 }
 
 // ============================================================================
@@ -79,7 +77,7 @@ func (s *Service) SearchDriver(c echo.Context) error {
 	forename := c.QueryParam("nome")
 	result, err := s.Store.SearchPilotByForename(userId, forename)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("Failed to search Driver by forename: ", err.Error())
 		return err
 	}
 

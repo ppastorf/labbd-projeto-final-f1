@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 
 	echo "github.com/labstack/echo/v4"
@@ -24,10 +26,13 @@ func AuthMiddleware(allowedUserTypes []string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			_, userType, err := getAuthData(c)
+			fmt.Printf("\n\n")
 			if err != nil {
-				return c.Redirect(http.StatusPermanentRedirect, "/index.html")
+				redirectUrl := fmt.Sprintf("/index.html")
+				return c.Redirect(http.StatusMovedPermanently, redirectUrl)
 			}
 			if !strArrayContains(allowedUserTypes, userType) {
+				log.Printf("Usuario nao tem permissao para acessar %s\n", c.Request().RequestURI)
 				return echo.NewHTTPError(http.StatusForbidden, "Seu usuário não tem acesso a esse recurso.")
 			}
 			return next(c)
@@ -58,16 +63,16 @@ func main() {
 	authenticated_admin := service.Server.Group("/admin", AuthMiddleware([]string{"admin"}))
 	authenticated_admin.GET("/overview", service.AdminOverview)
 	authenticated_admin.GET("/status-report", service.StatusReport)
-	authenticated_admin.GET("/report/:cidade", service.AdminReport)
-	authenticated_admin.POST("/create-constructor", service.CreateConstructor)
-	authenticated_admin.POST("/create-driver", service.CreateDriver)
+	authenticated_admin.GET("/report", service.AdminReport) // query param "cidade"
+	authenticated_admin.GET("/create-constructor", service.CreateConstructor)
+	authenticated_admin.GET("/create-driver", service.CreateDriver)
 
 	// Rotas de Escuderias
 	authenticated_constructor := service.Server.Group("/constructor", AuthMiddleware([]string{"escuderia"}))
 	authenticated_constructor.GET("/overview", service.ConstructorOverview)
 	authenticated_constructor.GET("/status-report", service.StatusReport)
 	authenticated_constructor.GET("/report", service.ConstructorReport)
-	authenticated_constructor.GET("/search-driver/:nome", service.SearchDriver)
+	authenticated_constructor.GET("/search-driver", service.SearchDriver) // query param "nome"
 
 	// Rotas de Piloto
 	authenticated_driver := service.Server.Group("/driver", AuthMiddleware([]string{"piloto"}))
