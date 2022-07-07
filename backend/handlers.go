@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -13,6 +15,9 @@ import (
 func AuthMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			if c.Request().RequestURI == "/login" {
+				return next(c)
+			}
 			userIdCookie, noIdCookie := c.Cookie("userid")
 			userTipoCookie, noTipoCookie := c.Cookie("tipo")
 			if noIdCookie != nil || noTipoCookie != nil || userIdCookie.Value == "" || userTipoCookie.Value == "" {
@@ -21,6 +26,32 @@ func AuthMiddleware() echo.MiddlewareFunc {
 			return next(c)
 		}
 	}
+}
+
+func (s *Service) GetStatusReport(c echo.Context) error {
+	userIdCookie, err := c.Cookie("userid")
+	userTipoCookie, _ := c.Cookie("tipo")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	userId, err := strconv.Atoi(userIdCookie.Value)
+	if err != nil {
+		fmt.Println("Erro Atoi: ", err)
+	}
+
+	tipo := strings.ToLower(userTipoCookie.Value)
+	if tipo != "admin" && tipo != "escuderia" && tipo != "piloto" {
+		fmt.Println(tipo)
+		return c.NoContent(http.StatusForbidden)
+	}
+
+	resultsByEachStatus, err := s.Store.GetResultsByEachStatus(userId, tipo)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, resultsByEachStatus)
 }
 
 type InputLogin struct {
@@ -111,4 +142,69 @@ func (s *Service) CreateConstructor(c echo.Context) error {
 	log.Printf("Constructor '%s' created", request.Name)
 
 	return c.NoContent(http.StatusCreated)
+}
+func (s *Service) GetAdminReport2(c echo.Context) error {
+	report := []Report2{}
+	input := Report2Input{}
+
+	if err := c.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+	fmt.Println(input.Cidade)
+
+	report, err := s.Store.GetAdminReport2(input.Cidade)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, report)
+}
+
+func (s *Service) GetAdminReport3(c echo.Context) error {
+	report := []Report3{}
+
+	report, err := s.Store.GetAdminReport3()
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, report)
+}
+
+func (s *Service) GetAdminReport5(c echo.Context) error {
+	report := []Report5{}
+
+	userIdCookie, err := c.Cookie("userid")
+
+	report, err = s.Store.GetAdminReport5(userIdCookie.Value)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, report)
+}
+
+func (s *Service) SearchPilot(c echo.Context) error {
+
+	userIdCookie, err := c.Cookie("userid")
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(userIdCookie)
+
+	input := SearchInput{}
+	if err := c.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+
+	fmt.Println(input.Sobrenome)
+
+	search, err := s.Store.SearchPilot(input.Sobrenome, userIdCookie.Value)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return c.JSON(http.StatusOK, search)
 }

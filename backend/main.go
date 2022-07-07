@@ -36,7 +36,14 @@ func main() {
 
 	//Relatorios
 	service.Server.GET("/status-report", service.GetStatusReport)
-	// service.Server.GET("/custom-report", service.GetCustomReport)
+	service.Server.GET("/custom-report", service.GetAdminReport2)
+	service.Server.GET("/report3", service.GetAdminReport3)
+	service.Server.GET("/report5", service.GetAdminReport5)
+
+	//Admin
+	service.Server.GET("/report5", service.GetAdminReport5)
+	service.Server.POST("/create-user", service.SearchPilot)
+
 	// service.Server.GET("/overviewInfo", service.GetOverviewInfo)
 
 	service.Server.Logger.Fatal(service.Server.Start(":8080"))
