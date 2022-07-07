@@ -29,13 +29,15 @@ func main() {
 		middleware.Logger(),
 		middleware.Recover(),
 		middleware.RequestID(),
-		AuthMiddleware(),
 	)
-	//Login
+
+	// Login
 	service.Server.POST("/login", service.Login)
 
-	//Relatorios
-	service.Server.GET("/status-report", service.GetStatusReport)
+	authenticated := service.Server.Group("", AuthMiddleware())
+
+	// Relatorios
+	authenticated.GET("/status-report", service.GetStatusReport)
 	// service.Server.GET("/custom-report", service.GetCustomReport)
 	// service.Server.GET("/overviewInfo", service.GetOverviewInfo)
 

@@ -19,9 +19,9 @@ type Store interface {
 	InsertConstructor(values CreateConstructorRequest) error
 	InsertDriver(values CreateDriverRequest) error
 	// GetAdminReport2(id int, tipo string) ([])
-	GetAdminInfo() (*AdminInfo, error)
-	GetConstructorInfo(userId int) (*ConstructorInfo, error)
-	GetDriverInfo(userId int) (*DriverInfo, error)
+	GetAdminOverviewInfo() (*AdminInfo, error)
+	GetConstructorOverviewInfo(userId int) (*ConstructorInfo, error)
+	GetDriverOverviewInfo(userId int) (*DriverInfo, error)
 }
 
 //StoreImpl struct
@@ -94,14 +94,20 @@ func (s *StoreImpl) Login(login string, password string) (*User, error) {
 	// !!
 	query := fmt.Sprintf(`SELECT * FROM users WHERE login='%v' AND userpassword='%v'`, login, md5Encrypt(password))
 
+	fmt.Printf("query: %s\n", query)
+
 	if err := s.DB.Select(&user, query); err != nil {
+		log.Println("Error db: ", err)
 		return nil, err
-	} else if len(user) == 1 {
-		fmt.Println("User found")
-		return &user[0], nil
-	} else {
+	}
+
+	if len(user) != 1 {
+		log.Printf("User %s not found\n", login)
 		return nil, fmt.Errorf("User not found")
 	}
+
+	fmt.Println("User found")
+	return &user[0], nil
 }
 
 func (s *StoreImpl) insert(table, query string) error {
@@ -145,7 +151,7 @@ type AdminInfo struct {
 	Temporadas int
 }
 
-func (s *StoreImpl) GetAdminInfo() (*AdminInfo, error) {
+func (s *StoreImpl) GetAdminOverviewInfo() (*AdminInfo, error) {
 	// query := fmt.Sprintf(``)
 	return nil, nil
 }
@@ -158,7 +164,7 @@ type ConstructorInfo struct {
 	UltimoAno     int
 }
 
-func (s *StoreImpl) GetConstructorInfo(userId int) (*ConstructorInfo, error) {
+func (s *StoreImpl) GetConstructorOverviewInfo(userId int) (*ConstructorInfo, error) {
 	// query := fmt.Sprintf(``)
 	return nil, nil
 }
@@ -170,7 +176,7 @@ type DriverInfo struct {
 	UltimoAno   int
 }
 
-func (s *StoreImpl) GetDriverInfo(userId int) (*DriverInfo, error) {
+func (s *StoreImpl) GetDriverOverviewInfo(userId int) (*DriverInfo, error) {
 	// query := fmt.Sprintf(``)
 	return nil, nil
 }

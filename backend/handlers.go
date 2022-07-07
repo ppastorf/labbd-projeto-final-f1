@@ -17,7 +17,7 @@ func AuthMiddleware() echo.MiddlewareFunc {
 			userIdCookie, noIdCookie := c.Cookie("userid")
 			userTipoCookie, noTipoCookie := c.Cookie("tipo")
 			if noIdCookie != nil || noTipoCookie != nil || userIdCookie.Value == "" || userTipoCookie.Value == "" {
-				return c.Redirect(http.StatusPermanentRedirect, "/loginPage")
+				return c.Redirect(http.StatusPermanentRedirect, "/index.html")
 			}
 			return next(c)
 		}
@@ -39,7 +39,7 @@ func (s *Service) Login(c echo.Context) error {
 	}
 
 	if user, err = s.Store.Login(input.Login, input.Password); err != nil {
-		return c.JSON(http.StatusBadRequest, "Username or password  not found")
+		return c.JSON(http.StatusBadRequest, "login or password  not found")
 	}
 
 	log.Printf("User %s logged", user.Login)
@@ -56,7 +56,8 @@ func (s *Service) Login(c echo.Context) error {
 	idCookie.Expires = time.Now().Add(24 * time.Hour)
 	c.SetCookie(idCookie)
 
-	return c.Redirect(http.StatusFound, "/overview")
+	return c.Redirect(http.StatusFound, c.Request().URL.Path)
+	// return http.Redirect()
 }
 
 // Create driver
@@ -129,7 +130,7 @@ func (s *Service) AdminInfo(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden)
 	}
 
-	response, err = s.Store.GetAdminInfo()
+	response, err = s.Store.GetAdminOverviewInfo()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get admin data")
 	}
@@ -152,7 +153,7 @@ func (s *Service) ConstructorInfo(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden)
 	}
 
-	response, err = s.Store.GetConstructorInfo(userId)
+	response, err = s.Store.GetConstructorOverviewInfo(userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get constructor data")
 	}
@@ -175,7 +176,7 @@ func (s *Service) DriverInfo(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden)
 	}
 
-	response, err = s.Store.GetDriverInfo(userId)
+	response, err = s.Store.GetDriverOverviewInfo(userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get driver data")
 	}
