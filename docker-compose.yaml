@@ -30,7 +30,7 @@ services:
       - "${PGADMIN_PORT:-5050}:80"
     networks:
       - postgres
-    restart: unless-stopped
+    restart: always
 
   backend:
     container_name: backend
@@ -44,6 +44,7 @@ services:
       - "8080:8080"
     networks:
       - postgres
+    restart: unless-stopped
 
 networks:
   postgres:
