@@ -1,119 +1,974 @@
 <template>
-  <div class="page-holder bg-gray-100">
-
-        <div class="container-fluid px-lg-4 px-xl-5 contentDiv">
-              <!-- Page Header-->
-              <div class="page-header mb-4">
-                <h1 class="page-heading">Profile</h1>
-              </div>
-          <section>
-            <div class="row">
-              <div class="col-lg-4">
-                <form class="card mb-4">
-                  <div class="card-header">
-                    <h4 class="card-heading">Escuderia</h4>
-                  </div>
-                  <div class="card-body">
-                    <div class="row mb-3">
-                      <div class="col-auto d-flex align-items-center"><img class="avatar avatar-lg p-1" src="https://therichpost.com/wp-content/uploads/2021/03/avatar2.png" alt="Avatar"></div>
-                      <div class="col">
-                        <label class="form-label">Name</label>
-                        <label class="form-label">{{login}}</label>
-                      </div>
-                    </div>
-                    <div class="card-footer text-end">
-                    <button id="btn1" class="btn btn-primary" v-on:click="submitPiloto()">Cadastrar Piloto</button>
-                    <button id="btn2" class="btn btn-primary" v-on:click="submitEscuderia()">Cadastrar Escuderia</button>
-                  </div>
-                  </div>
-                </form>
-              </div>
-                <div class="col-lg-8">
-                    
-                    
-                    <div class="card-header"><h4 class="card-heading">Overview</h4></div>
-                    <div class="list-group-item border-start-0 border-end-0 py-5 border-top-0">
-                        <h6>Número de vitórias: </h6> <label class="form-label">{{ info.data.victories}}</label>
-                        <h6>Primeiro ano de entrada: </h6> <label class="form-label">{{ info.data.firt_year}}</label>
-                        <h6>Último ano de entrada: </h6> <label class="form-label">{{ info.data.last_year}}</label>
-                    </div> 
-                    <div class="card-header"><h4 class="card-heading">Relatórios</h4></div>
-                     <div class="list-group-item border-start-0 border-end-0 py-2 border-top-0">
-                      <div id="textExample">
-                        <table class="table table-bordered">
-                          <thead>
-                              <tr>
-                                  <th> Ano</th>
-                                  <th> Corridas</th>
-                                  <th> Vitorias</th>
-                              </tr>
-                          </thead>
-                          <tr v-for="loan in rel5.data.data">
-                              <td>{{loan.year}}</td>
-                              <td>{{loan.corridas}}</td>
-                              <td>{{loan.vitorias}}</td>
-                          </tr>
-
-
-                        </table>
-                      </div>
-                    </div>  
-                </div>
-            </div>
-          </section>
+  <div class="admin-container">
+    <main class="admin-header">
+      <div class="admin-container01">
+        <img
+          alt="image"
+          src="/playground_assets/f1-1200h.png"
+          loading="eager"
+          class="admin-f1-logo"
+        />
+        <span class="admin-user-name heading1"><span>admin</span></span>
+      </div>
+    </main>
+    <div class="admin-overview">
+      <h1 class="admin-titulo">
+        <span>over</span>
+        <span></span>
+        <span>view</span>
+      </h1>
+      <div class="admin-cards-overview">
+        <div class="admin-overview-card">
+          <h2 class="admin-texto"><span>pilotos: &#123;&#125;</span></h2>
+          <img
+            alt="image"
+            src="/playground_assets/driver_report-200h.png"
+            class="admin-icone"
+          />
+        </div>
+        <div class="admin-overview-card1">
+          <h2 class="admin-texto1">
+            <span>escuderias</span>
+            <span>: &#123;&#125;</span>
+          </h2>
+          <img
+            alt="image"
+            src="/playground_assets/escuderias-200h.jpg"
+            class="admin-icone1"
+          />
+        </div>
+        <div class="admin-overview-card2">
+          <h2 class="admin-texto2">
+            <span>corridas :&#123;&#125;</span>
+            <span><span v-html="rawbcob"></span></span>
+          </h2>
+          <img
+            alt="image"
+            src="/playground_assets/circuitos-200h.png"
+            class="admin-icone2"
+          />
+        </div>
+        <div class="admin-overview-card3">
+          <h2 class="admin-texto3"><span>temporadas :&#123;&#125;</span></h2>
+          <img
+            alt="image"
+            src="/playground_assets/temporadas-200h.jpg"
+            class="admin-icone3"
+          />
         </div>
       </div>
-    
+    </div>
+    <div class="admin-relatorios section-container">
+      <div class="admin-container02 max-content-container">
+        <h1 class="admin-titulo1">relatorios</h1>
+        <div class="admin-container03">
+          <div class="admin-card-relatorio">
+            <div class="admin-container04">
+              <h1 class="admin-titulo2">aeroportos</h1>
+              <div class="admin-container05">
+                <img
+                  alt="profile"
+                  src="/playground_assets/airports-200h.jpg"
+                  class="admin-imagem-relatorio"
+                />
+                <form class="admin-form">
+                  <div class="admin-container06">
+                    <span class="admin-text10">cidade</span>
+                    <input
+                      type="text"
+                      id="reports_city_input"
+                      name="AiportsReportCity"
+                      required
+                      placeholder="URL"
+                      class="admin-textinput input"
+                    />
+                  </div>
+                  <button class="admin-button button">
+                    <span class="admin-text11"><span>consultar</span></span>
+                  </button>
+                </form>
+              </div>
+            </div>
+            <div class="admin-container07">
+              <h1 class="admin-titulo3"><span>resultados</span></h1>
+              <div class="admin-container08">
+                <img
+                  alt="profile"
+                  src="/playground_assets/status-200h.jpg"
+                  class="admin-imagem-relatorio1"
+                />
+                <form class="admin-form1">
+                  <button class="admin-button1 button">
+                    <span class="admin-text14"><span>consultar</span></span>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="admin-cadastros section-container">
+      <div class="admin-container09">
+        <h1 class="admin-titulo4"><span>cadastrar</span></h1>
+        <div class="admin-card-relatorio1">
+          <div class="admin-cadastro-escuderia">
+            <h1 class="admin-titulo5">
+              <span></span>
+              <span>ESCUDERIA</span>
+            </h1>
+            <form class="admin-form2">
+              <div class="admin-container10">
+                <span class="admin-text19"><span>constructor ref</span></span>
+                <input
+                  type="text"
+                  id="constructor_ref_input"
+                  name="ConstructorRef"
+                  required
+                  placeholder="ConstructorRef"
+                  class="admin-textinput01 input"
+                />
+              </div>
+              <div class="admin-container11">
+                <span class="admin-text21"><span>nome</span></span>
+                <input
+                  type="text"
+                  id="constructor_name_input"
+                  name="ConstructorName"
+                  required
+                  placeholder="Nome"
+                  class="admin-textinput02 input"
+                />
+              </div>
+              <div class="admin-container12">
+                <span class="admin-text23"><span>Nacionalidade</span></span>
+                <input
+                  type="text"
+                  id="constructor_nationality_input"
+                  name="ConstructorNationality"
+                  required
+                  placeholder="Nacionalidade"
+                  class="admin-textinput03 input"
+                />
+              </div>
+              <div class="admin-container13">
+                <span class="admin-text25"><span>url</span></span>
+                <input
+                  type="text"
+                  id="constructor_url_input"
+                  name="ConstructorURL"
+                  required
+                  placeholder="URL"
+                  class="admin-textinput04 input"
+                />
+              </div>
+              <button class="admin-button2 button">cadastrar</button>
+            </form>
+          </div>
+          <div class="admin-cadastro-piloto">
+            <h1 class="admin-titulo6"><span>PILOTO</span></h1>
+            <form class="admin-form3">
+              <div class="admin-container14">
+                <span class="admin-text28"><span>driver ref</span></span>
+                <input
+                  type="text"
+                  id="driver_ref_input"
+                  name="DriverRef"
+                  required
+                  placeholder="DriverRef"
+                  class="admin-textinput05 input"
+                />
+              </div>
+              <div class="admin-container15">
+                <span class="admin-text30"><span>NUMERO</span></span>
+                <input
+                  type="number"
+                  id="driver_number_input"
+                  name="DriverNumber"
+                  required
+                  placeholder="Numero"
+                  class="admin-textinput06 input"
+                />
+              </div>
+              <div class="admin-container16">
+                <span class="admin-text32"><span>CODIGO</span></span>
+                <input
+                  type="text"
+                  id="driver_code_input"
+                  name="DriverCode"
+                  enctype="Codigo"
+                  required
+                  placeholder="Codigo"
+                  class="admin-textinput07 input"
+                />
+              </div>
+              <div class="admin-container17">
+                <span class="admin-text34">PRIMEIRO NOME</span>
+                <input
+                  type="text"
+                  id="driver_forename_input"
+                  name="DriverForename"
+                  required
+                  placeholder="Primeiro nome"
+                  class="admin-textinput08 input"
+                />
+              </div>
+              <div class="admin-container18">
+                <span class="admin-text35"><span>SOBRENOME</span></span>
+                <input
+                  type="text"
+                  id="driver_surname_input"
+                  name="DriverSurname"
+                  required
+                  placeholder="Sobrenome"
+                  class="admin-textinput09 input"
+                />
+              </div>
+              <div class="admin-container19">
+                <span class="admin-text37"><span>DATA DE NASCIMENTO</span></span>
+                <input
+                  type="date"
+                  id="driver_dob_iput"
+                  name="DriveDateOfBirth"
+                  required
+                  class="admin-textinput10 input"
+                />
+              </div>
+              <div class="admin-container20">
+                <span class="admin-text39"><span>NACIONALIDADE</span></span>
+                <input
+                  type="text"
+                  id="diver_nationality_input"
+                  name="DriverNationality"
+                  required
+                  placeholder="Nacionalidade"
+                  class="admin-textinput11 input"
+                />
+              </div>
+              <button class="admin-button3 button">cadastrar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
-<script>
-//importing bootstrap 5 Modules
-import "bootstrap/dist/css/bootstrap.min.css";
-import axios from 'axios'
 
+<script>
 export default {
-  data () {
+  name: 'Admin',
+
+  data() {
     return {
-      info: {},
-      rel5: [],
-      rel6: [],
-      search: null,
-      resultSearch: [],
-      isHidden: false,
-      login: ''
+      rawbcob: ' ',
     }
   },
-  methods: {
-    async getDataOverview() {
-      axios
-      .get('http://localhost:8080/overviewpiloto')
-      .then(response => (this.info = response))
-    },
-    async getDataRel5() {
-      axios
-      .get('http://localhost:8080/rel5')
-      .then(response => (this.rel5 = response))
-    },
-    submitPiloto(){
-        
-    },
-    submitEscuderia(){
-        
-    }
+
+  metaInfo: {
+    title: 'Admin - Sistema F1 WEB',
+    meta: [
+      {
+        property: 'og:title',
+        content: 'Admin - Sistema F1 WEB',
+      },
+    ],
   },
-  created() {
-    this.getDataOverview();
-    this.getDataRel5();
-  },mounted(){
-      this.login = this.$route.params.login
-      console.log(this.$route.params)
-  }
 }
 </script>
+
 <style scoped>
-  #btn2 {
-    margin-left: 10px;
-  }
-  #btn1 {
-    margin-left: ;
-  }
+.admin-container {
+  width: 100%;
+  display: flex;
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  align-items: center;
+  flex-direction: column;
+  background-size: cover;
+  background-image: url("https://images.unsplash.com/photo-1586076100131-32505c71d0d2?ixid=Mnw5MTMyMXwwfDF8c2VhcmNofDEzfHxwYXBlcnxlbnwwfHx8fDE2NTgyODEzNDY&ixlib=rb-1.2.1&w=1500");
+}
+.admin-header {
+  flex: 0 0 auto;
+  width: 100%;
+  display: flex;
+  position: relative;
+  align-items: center;
+  margin-bottom: var(--dl-space-space-unit);
+  flex-direction: column;
+  background-size: cover;
+  background-image: url("https://images.unsplash.com/photo-1558879912-38d7a8936871?ixid=Mnw5MTMyMXwwfDF8c2VhcmNofDEwfHxhc3BoYWx0fGVufDB8fHx8MTY1ODI0NjMxNA&ixlib=rb-1.2.1&w=1500");
+}
+.admin-container01 {
+  flex: 1;
+  width: var(--dl-size-size-maxwidth);
+  height: var(--dl-size-size-small);
+  display: flex;
+  position: relative;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+.admin-f1-logo {
+  align-self: flex-start;
+  max-height: var(--dl-size-size-maxwidth);
+  object-fit: cover;
+}
+.admin-user-name {
+  color: #bf0303;
+  width: auto;
+  align-self: center;
+  text-align: left;
+  margin-left: var(--dl-space-space-twounits);
+  border-color: #000000;
+  border-width: 1px;
+  padding-left: var(--dl-space-space-unit);
+  border-radius: var(--dl-radius-radius-radius8);
+  padding-right: var(--dl-space-space-unit);
+  background-image: linear-gradient(225deg, rgb(189, 195, 199) 3.00%,rgba(0, 0, 0, 0.9) 31.00%);
+}
+.admin-overview {
+  width: var(--dl-size-size-maxwidth);
+  display: flex;
+  flex-wrap: wrap;
+  max-width: auto;
+  margin-bottom: var(--dl-space-space-unit);
+  flex-direction: column;
+}
+.admin-titulo {
+  color: #bf0303;
+  width: var(--dl-size-size-maxwidth);
+  font-size: 3rem;
+  align-self: center;
+  text-align: center;
+  border-radius: var(--dl-radius-radius-radius8);
+}
+.admin-cards-overview {
+  flex: 0 0 auto;
+  width: 100%;
+  display: grid;
+  grid-gap: var(--dl-space-space-twounits);
+  margin-top: var(--dl-space-space-halfunit);
+  align-items: flex-start;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+.admin-overview-card {
+  width: 100%;
+  display: flex;
+  padding: var(--dl-space-space-unit);
+  position: relative;
+  max-width: var(--dl-size-size-maxwidth);
+  box-shadow: 5px 5px 10px 0px rgba(18, 18, 18, 0.1);
+  transition: 0.3s;
+  align-items: flex-start;
+  border-radius: var(--dl-radius-radius-radius8);
+  flex-direction: column;
+  justify-content: flex-start;
+  background-image: linear-gradient(225deg, rgb(189, 195, 199) 3.00%,rgba(0, 0, 0, 0.9) 31.00%);
+}
+.admin-overview-card:hover {
+  transform: scale(1.02);
+}
+.admin-texto {
+  color: #cec70c;
+  margin-bottom: var(--dl-space-space-twounits);
+}
+.admin-icone {
+  width: var(--dl-size-size-large);
+  height: var(--dl-size-size-medium);
+  object-fit: cover;
+  border-radius: var(--dl-radius-radius-radius4);
+}
+.admin-overview-card1 {
+  width: 100%;
+  display: flex;
+  padding: var(--dl-space-space-unit);
+  max-width: var(--dl-size-size-maxwidth);
+  box-shadow: 5px 5px 10px 0px rgba(18, 18, 18, 0.1);
+  transition: 0.3s;
+  align-items: flex-start;
+  border-radius: var(--dl-radius-radius-radius8);
+  flex-direction: column;
+  justify-content: flex-start;
+  background-image: linear-gradient(225deg, rgb(189, 195, 199) 3.00%,rgba(0, 0, 0, 0.9) 31.00%);
+}
+.admin-overview-card1:hover {
+  transform: scale(1.02);
+}
+.admin-texto1 {
+  color: #cec70c;
+  margin-bottom: var(--dl-space-space-twounits);
+}
+.admin-icone1 {
+  width: var(--dl-size-size-large);
+  height: var(--dl-size-size-medium);
+  object-fit: cover;
+  border-radius: var(--dl-radius-radius-radius4);
+}
+.admin-overview-card2 {
+  width: 100%;
+  display: flex;
+  padding: var(--dl-space-space-unit);
+  max-width: var(--dl-size-size-maxwidth);
+  box-shadow: 5px 5px 10px 0px rgba(18, 18, 18, 0.1);
+  transition: 0.3s;
+  align-items: flex-start;
+  border-radius: var(--dl-radius-radius-radius8);
+  flex-direction: column;
+  justify-content: flex-start;
+  background-image: linear-gradient(225deg, rgb(189, 195, 199) 3.00%,rgba(0, 0, 0, 0.9) 31.00%);
+}
+.admin-overview-card2:hover {
+  transform: scale(1.02);
+}
+.admin-texto2 {
+  color: #cec70c;
+  margin-bottom: var(--dl-space-space-twounits);
+}
+.admin-icone2 {
+  width: var(--dl-size-size-large);
+  height: var(--dl-size-size-medium);
+  object-fit: cover;
+  border-radius: var(--dl-radius-radius-radius4);
+}
+.admin-overview-card3 {
+  width: auto;
+  display: flex;
+  padding: var(--dl-space-space-unit);
+  max-width: var(--dl-size-size-maxwidth);
+  box-shadow: 5px 5px 10px 0px rgba(18, 18, 18, 0.1);
+  transition: 0.3s;
+  align-items: flex-start;
+  border-radius: var(--dl-radius-radius-radius8);
+  flex-direction: column;
+  justify-content: flex-start;
+  background-image: linear-gradient(225deg, rgb(189, 195, 199) 3.00%,rgba(0, 0, 0, 0.9) 31.00%);
+}
+.admin-overview-card3:hover {
+  transform: scale(1.02);
+}
+.admin-texto3 {
+  color: #cec70c;
+  margin-bottom: var(--dl-space-space-twounits);
+}
+.admin-icone3 {
+  width: var(--dl-size-size-large);
+  height: var(--dl-size-size-medium);
+  object-fit: cover;
+  border-radius: var(--dl-radius-radius-radius4);
+}
+.admin-relatorios {
+  width: var(--dl-size-size-maxwidth);
+  display: flex;
+  align-items: center;
+  padding-top: 0px;
+  margin-bottom: var(--dl-space-space-unit);
+  flex-direction: column;
+  padding-bottom: 0px;
+  justify-content: flex-start;
+}
+.admin-container02 {
+  flex-direction: column;
+}
+.admin-titulo1 {
+  color: #bf0303;
+  width: var(--dl-size-size-maxwidth);
+  font-size: 3rem;
+  align-self: center;
+  text-align: center;
+  border-radius: var(--dl-radius-radius-radius8);
+}
+.admin-container03 {
+  flex: 2;
+  width: var(--dl-size-size-maxwidth);
+  height: auto;
+  display: flex;
+  position: relative;
+  align-self: center;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.admin-card-relatorio {
+  width: 100%;
+  display: flex;
+  max-width: var(--dl-size-size-maxwidth);
+  align-self: flex-end;
+  background: #fff;
+  box-shadow: 5px 5px 10px 0px rgba(18, 18, 18, 0.1);
+  align-items: center;
+  border-color: #3a0d0d;
+  border-width: 4px;
+  background-size: cover;
+  justify-content: space-between;
+  background-image: url("https://images.unsplash.com/photo-1586076100131-32505c71d0d2?ixid=Mnw5MTMyMXwwfDF8c2VhcmNofDEzfHxwYXBlcnxlbnwwfHx8fDE2NTgyODEzNDY&ixlib=rb-1.2.1&w=1200");
+}
+.admin-container04 {
+  width: 50%;
+  height: auto;
+  display: flex;
+  position: relative;
+  align-self: center;
+  align-items: flex-start;
+  padding-top: var(--dl-space-space-unit);
+  padding-left: var(--dl-space-space-unit);
+  padding-right: var(--dl-space-space-unit);
+  flex-direction: column;
+  padding-bottom: var(--dl-space-space-unit);
+  justify-content: flex-start;
+}
+.admin-titulo2 {
+  color: #bf0303;
+  width: auto;
+  font-size: 3rem;
+  align-self: center;
+  text-align: center;
+  border-radius: var(--dl-radius-radius-radius8);
+}
+.admin-container05 {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+}
+.admin-imagem-relatorio {
+  flex: 0;
+  width: auto;
+  height: auto;
+  margin: var(--dl-space-space-unit);
+  object-fit: cover;
+  flex-shrink: 0;
+  border-radius: var(--dl-radius-radius-round);
+}
+.admin-form {
+  width: 100%;
+  position: relative;
+  align-self: stretch;
+}
+.admin-container06 {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.admin-text10 {
+  color: #000000;
+  font-size: 20px;
+  font-style: normal;
+  font-family: IBM Plex Sans Condensed;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: none;
+}
+.admin-textinput {
+  width: var(--dl-size-size-xxlarge);
+  margin-top: var(--dl-space-space-halfunit);
+  margin-bottom: var(--dl-space-space-halfunit);
+}
+.admin-button {
+  width: var(--dl-size-size-xxlarge);
+  margin-top: var(--dl-space-space-halfunit);
+  border-color: #0a0a0a;
+  border-width: 2px;
+  border-radius: var(--dl-radius-radius-radius4);
+  margin-bottom: var(--dl-space-space-halfunit);
+  background-color: #e4e406;
+}
+.admin-text11 {
+  color: #000000;
+  font-style: normal;
+  font-weight: 700;
+}
+.admin-container07 {
+  width: 50%;
+  height: auto;
+  display: flex;
+  position: relative;
+  align-self: center;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.admin-titulo3 {
+  color: #bf0303;
+  width: auto;
+  font-size: 3rem;
+  align-self: center;
+  text-align: center;
+  border-radius: var(--dl-radius-radius-radius8);
+}
+.admin-container08 {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+}
+.admin-imagem-relatorio1 {
+  flex: 0;
+  width: auto;
+  height: auto;
+  margin: var(--dl-space-space-unit);
+  object-fit: cover;
+  flex-shrink: 0;
+  border-radius: var(--dl-radius-radius-round);
+}
+.admin-form1 {
+  width: 100%;
+  position: relative;
+  align-self: center;
+}
+.admin-button1 {
+  width: var(--dl-size-size-xxlarge);
+  margin-top: var(--dl-space-space-halfunit);
+  border-color: #0a0a0a;
+  border-width: 2px;
+  border-radius: var(--dl-radius-radius-radius4);
+  margin-bottom: var(--dl-space-space-halfunit);
+  background-color: #e4e406;
+}
+.admin-text14 {
+  font-style: normal;
+  font-weight: 700;
+}
+.admin-cadastros {
+  width: var(--dl-size-size-maxwidth);
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  padding-top: 0px;
+  margin-bottom: var(--dl-space-space-unit);
+  flex-direction: column;
+  padding-bottom: 0px;
+  justify-content: flex-start;
+}
+.admin-container09 {
+  flex: 0;
+  width: var(--dl-size-size-maxwidth);
+  height: var(--dl-size-size-large);
+  display: flex;
+  position: relative;
+  align-self: center;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.admin-titulo4 {
+  color: #bf0303;
+  width: var(--dl-size-size-maxwidth);
+  font-size: 3rem;
+  align-self: center;
+  text-align: center;
+  border-radius: var(--dl-radius-radius-radius8);
+}
+.admin-card-relatorio1 {
+  flex: 1;
+  width: var(--dl-size-size-maxwidth);
+  height: var(--dl-size-size-xsmall);
+  display: flex;
+  position: relative;
+  max-width: var(--dl-size-size-maxwidth);
+  align-self: flex-start;
+  background: #fff;
+  box-shadow: 5px 5px 10px 0px rgba(18, 18, 18, 0.1);
+  align-items: flex-start;
+  padding-top: var(--dl-space-space-halfunit);
+  border-color: #3a0d0d;
+  border-width: 4px;
+  padding-bottom: var(--dl-space-space-halfunit);
+  background-size: cover;
+  justify-content: flex-start;
+  background-image: url('https://images.unsplash.com/photo-1586076100131-32505c71d0d2?ixid=Mnw5MTMyMXwwfDF8c2VhcmNofDEzfHxwYXBlcnxlbnwwfHx8fDE2NTgyODEzNDY&ixlib=rb-1.2.1&w=1200');
+}
+.admin-cadastro-escuderia {
+  flex: 1;
+  width: 50%;
+  height: auto;
+  display: flex;
+  position: relative;
+  align-self: stretch;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.admin-titulo5 {
+  color: #bf0303;
+  width: auto;
+  font-size: 3rem;
+  align-self: center;
+  text-align: center;
+  border-radius: var(--dl-radius-radius-radius8);
+}
+.admin-form2 {
+  height: auto;
+  align-self: center;
+  margin-top: var(--dl-space-space-unit);
+}
+.admin-container10 {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.admin-text19 {
+  color: #000000;
+  font-size: 20px;
+  font-family: IBM Plex Sans Condensed;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: none;
+}
+.admin-textinput01 {
+  width: var(--dl-size-size-xxlarge);
+  margin-top: var(--dl-space-space-halfunit);
+  margin-bottom: var(--dl-space-space-halfunit);
+}
+.admin-container11 {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.admin-text21 {
+  color: #000000;
+  font-size: 18px;
+  font-family: IBM Plex Sans Condensed;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: none;
+}
+.admin-textinput02 {
+  width: var(--dl-size-size-xxlarge);
+  margin-top: var(--dl-space-space-halfunit);
+  margin-bottom: var(--dl-space-space-halfunit);
+}
+.admin-container12 {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.admin-text23 {
+  color: #000000;
+  font-size: 18px;
+  font-family: IBM Plex Sans Condensed;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: none;
+}
+.admin-textinput03 {
+  width: var(--dl-size-size-xxlarge);
+  margin-top: var(--dl-space-space-halfunit);
+  margin-bottom: var(--dl-space-space-halfunit);
+}
+.admin-container13 {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.admin-text25 {
+  color: #000000;
+  font-size: 18px;
+  font-family: IBM Plex Sans Condensed;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: none;
+}
+.admin-textinput04 {
+  width: var(--dl-size-size-xxlarge);
+  margin-top: var(--dl-space-space-halfunit);
+  margin-bottom: var(--dl-space-space-halfunit);
+}
+.admin-button2 {
+  width: var(--dl-size-size-xxlarge);
+  font-style: normal;
+  margin-top: var(--dl-space-space-halfunit);
+  font-weight: 700;
+  border-color: #0a0a0a;
+  border-width: 2px;
+  border-radius: var(--dl-radius-radius-radius4);
+  margin-bottom: var(--dl-space-space-halfunit);
+  background-color: #e4e406;
+}
+.admin-cadastro-piloto {
+  flex: 1;
+  width: 50%;
+  height: auto;
+  display: flex;
+  position: relative;
+  align-self: stretch;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.admin-titulo6 {
+  color: #bf0303;
+  width: auto;
+  font-size: 3rem;
+  align-self: center;
+  text-align: center;
+  border-radius: var(--dl-radius-radius-radius8);
+}
+.admin-form3 {
+  height: auto;
+  align-self: center;
+  margin-top: var(--dl-space-space-unit);
+}
+.admin-container14 {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.admin-text28 {
+  color: #000000;
+  font-size: 18px;
+  font-family: IBM Plex Sans Condensed;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: none;
+}
+.admin-textinput05 {
+  width: var(--dl-size-size-xxlarge);
+  margin-top: var(--dl-space-space-halfunit);
+  margin-bottom: var(--dl-space-space-halfunit);
+}
+.admin-container15 {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.admin-text30 {
+  color: #000000;
+  font-size: 18px;
+  font-family: IBM Plex Sans Condensed;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: none;
+}
+.admin-textinput06 {
+  width: var(--dl-size-size-xxlarge);
+  margin-top: var(--dl-space-space-halfunit);
+  margin-bottom: var(--dl-space-space-halfunit);
+}
+.admin-container16 {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.admin-text32 {
+  color: #000000;
+  font-size: 18px;
+  font-family: IBM Plex Sans Condensed;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: none;
+}
+.admin-textinput07 {
+  width: var(--dl-size-size-xxlarge);
+  margin-top: var(--dl-space-space-halfunit);
+  margin-bottom: var(--dl-space-space-halfunit);
+}
+.admin-container17 {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.admin-text34 {
+  color: #000000;
+  font-size: 18px;
+  font-family: IBM Plex Sans Condensed;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: none;
+}
+.admin-textinput08 {
+  width: var(--dl-size-size-xxlarge);
+  margin-top: var(--dl-space-space-halfunit);
+  margin-bottom: var(--dl-space-space-halfunit);
+}
+.admin-container18 {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.admin-text35 {
+  color: #000000;
+  font-size: 18px;
+  font-family: IBM Plex Sans Condensed;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: none;
+}
+.admin-textinput09 {
+  width: var(--dl-size-size-xxlarge);
+  margin-top: var(--dl-space-space-halfunit);
+  margin-bottom: var(--dl-space-space-halfunit);
+}
+.admin-container19 {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.admin-text37 {
+  color: #000000;
+  font-size: 18px;
+  font-family: IBM Plex Sans Condensed;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: none;
+}
+.admin-textinput10 {
+  width: var(--dl-size-size-xxlarge);
+  margin-top: var(--dl-space-space-halfunit);
+  margin-bottom: var(--dl-space-space-halfunit);
+}
+.admin-container20 {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.admin-text39 {
+  color: #000000;
+  font-size: 16px;
+  font-family: IBM Plex Sans Condensed;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: none;
+}
+.admin-textinput11 {
+  width: var(--dl-size-size-xxlarge);
+  margin-top: var(--dl-space-space-halfunit);
+  margin-bottom: var(--dl-space-space-halfunit);
+}
+.admin-button3 {
+  width: var(--dl-size-size-xxlarge);
+  font-style: normal;
+  margin-top: var(--dl-space-space-halfunit);
+  font-weight: 700;
+  border-color: #0a0a0a;
+  border-width: 2px;
+  border-radius: var(--dl-radius-radius-radius4);
+  margin-bottom: var(--dl-space-space-halfunit);
+  background-color: #e4e406;
+}
 </style>
