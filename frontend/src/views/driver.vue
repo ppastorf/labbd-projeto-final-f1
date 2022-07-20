@@ -73,7 +73,7 @@
                 />
                 <form class="driver-form">
                   <button class="driver-button button">
-                    <span class="driver-text13"><span>consultar</span></span>
+                    <span class="driver-text13"><span>CONSULTAR</span></span>
                   </button>
                 </form>
               </div>
@@ -88,7 +88,7 @@
                 />
                 <form class="driver-form1">
                   <button class="driver-button1 button">
-                    <span class="driver-text15"><span>consultar</span></span>
+                    <span class="driver-text15"><span>CONSULTAR</span></span>
                   </button>
                 </form>
               </div>

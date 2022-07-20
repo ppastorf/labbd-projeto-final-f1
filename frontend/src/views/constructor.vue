@@ -82,7 +82,7 @@
                 />
                 <form class="constructor-form">
                   <button class="constructor-button button">
-                    <span class="constructor-text13"><span>consultar</span></span>
+                    <span class="constructor-text13"><span>CONSULTAR</span></span>
                   </button>
                 </form>
               </div>
@@ -97,7 +97,7 @@
                 />
                 <form class="constructor-form1">
                   <button class="constructor-button1 button">
-                    <span class="constructor-text15"><span>consultar</span></span>
+                    <span class="constructor-text15"><span>CONSULTAR</span></span>
                   </button>
                 </form>
               </div>
@@ -108,7 +108,7 @@
     </div>
     <div class="constructor-consultas section-container">
       <div class="constructor-container08">
-        <h1 class="constructor-titulo4"><span>consultar</span></h1>
+        <h1 class="constructor-titulo4"><span>CONSULTAR</span></h1>
         <div class="constructor-card-relatorio1">
           <div class="constructor-cadastro-piloto">
             <h1 class="constructor-titulo5"><span>PILOTO</span></h1>
@@ -124,7 +124,7 @@
                   class="constructor-textinput input"
                 />
               </div>
-              <button class="constructor-button2 button">consultar</button>
+              <button class="constructor-button2 button">CONSULTAR</button>
             </form>
           </div>
         </div>

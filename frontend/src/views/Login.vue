@@ -8,19 +8,19 @@
           loading="eager"
           class="login-f1-logo"
         />
-        <span class="login-user-name heading1"><span>sistema f1 web</span></span>
+        <span class="login-user-name heading1"><span>Sistema F1 web</span></span>
       </div>
     </main>
     <div class="login-body section-container">
       <div class="login-login-form">
         <h1 class="login-titulo"><span>login</span></h1>
-        <form class="login-form">
+        <form class="login-form" action="/login" method="post">
           <div class="login-container2">
             <span class="login-text2"><span>login</span></span>
             <input
               type="text"
               id="login_input"
-              name="LoginInput"
+              name="login"
               required
               placeholder="login"
               class="login-textinput input"
@@ -33,14 +33,14 @@
             </span>
             <input
               type="password"
-              id="password_input"
+              id="password"
               name="Password"
               required
               placeholder="********"
               class="login-textinput1 input"
             />
           </div>
-          <button class="login-button button">LOGIN</button>
+          <button class="login-button button" type="submit">LOGIN</button>
         </form>
       </div>
     </div>

@@ -19,7 +19,7 @@
       </h1>
       <div class="admin-cards-overview">
         <div class="admin-overview-card">
-          <h2 class="admin-texto"><span>pilotos: &#123;&#125;</span></h2>
+          <h2 class="admin-texto"><span id="overview-pilotos">pilotos</span></h2>
           <img
             alt="image"
             src="/playground_assets/driver_report-200h.png"
@@ -28,8 +28,7 @@
         </div>
         <div class="admin-overview-card1">
           <h2 class="admin-texto1">
-            <span>escuderias</span>
-            <span>: &#123;&#125;</span>
+            <span id="overview-escuderias">escuderias</span>
           </h2>
           <img
             alt="image"
@@ -39,8 +38,7 @@
         </div>
         <div class="admin-overview-card2">
           <h2 class="admin-texto2">
-            <span>corridas :&#123;&#125;</span>
-            <span><span v-html="rawbcob"></span></span>
+            <span id="overview-corridas">corridas</span>
           </h2>
           <img
             alt="image"
@@ -49,7 +47,7 @@
           />
         </div>
         <div class="admin-overview-card3">
-          <h2 class="admin-texto3"><span>temporadas :&#123;&#125;</span></h2>
+          <h2 class="admin-texto3"><span id="overview-temporadas">temporadas</span></h2>
           <img
             alt="image"
             src="/playground_assets/temporadas-200h.jpg"
@@ -76,15 +74,15 @@
                     <span class="admin-text10">cidade</span>
                     <input
                       type="text"
-                      id="reports_city_input"
+                      id="input-relatorio-aeroportos"
                       name="AiportsReportCity"
                       required
                       placeholder="URL"
                       class="admin-textinput input"
                     />
                   </div>
-                  <button class="admin-button button">
-                    <span class="admin-text11"><span>consultar</span></span>
+                  <button id="button-relatorio-aeroportos" class="admin-button button">
+                    <span class="admin-text11"><span>CONSULTAR</span></span>
                   </button>
                 </form>
               </div>
@@ -98,8 +96,8 @@
                   class="admin-imagem-relatorio1"
                 />
                 <form class="admin-form1">
-                  <button class="admin-button1 button">
-                    <span class="admin-text14"><span>consultar</span></span>
+                  <button id="button-relatorio-status" class="admin-button1 button">
+                    <span class="admin-text14"><span>CONSULTAR</span></span>
                   </button>
                 </form>
               </div>
@@ -110,7 +108,7 @@
     </div>
     <div class="admin-cadastros section-container">
       <div class="admin-container09">
-        <h1 class="admin-titulo4"><span>cadastrar</span></h1>
+        <h1 class="admin-titulo4"><span>CADASTRAR</span></h1>
         <div class="admin-card-relatorio1">
           <div class="admin-cadastro-escuderia">
             <h1 class="admin-titulo5">
@@ -162,7 +160,7 @@
                   class="admin-textinput04 input"
                 />
               </div>
-              <button class="admin-button2 button">cadastrar</button>
+              <button class="admin-button2 button">CADASTRAR</button>
             </form>
           </div>
           <div class="admin-cadastro-piloto">
@@ -245,7 +243,7 @@
                   class="admin-textinput11 input"
                 />
               </div>
-              <button class="admin-button3 button">cadastrar</button>
+              <button class="admin-button3 button">CADASTRAR</button>
             </form>
           </div>
         </div>
@@ -255,6 +253,64 @@
 </template>
 
 <script>
+import axios from 'axios'
+
+window.onload=function() {
+  var cookies = parseCookie(document.cookie)
+  
+  if (window.location.pathname == "/admin/" && cookies.tipo == "admin") {
+    axios.get('http://localhost:8080/'+cookies.tipo+'/overview')
+      .then(res=>setOverviewAdmin(res.data))
+      .catch(err=>console.log(err))
+    document.getElementById("button-relatorio-aeroportos").addEventListener("click", getRelatorioAeroportos, false);
+    document.getElementById("button-relatorio-status").addEventListener("click", getRelatorioStatus, false);
+  }
+}
+
+function setOverviewAdmin(data) {
+  document.getElementById("overview-pilotos").innerHTML = String(data.Pilotos).concat(" pilotos");
+  document.getElementById("overview-escuderias").innerHTML = String(data.Escuderias).concat(" escuderias");
+  document.getElementById("overview-corridas").innerHTML = String(data.Corridas).concat(" corridas");
+  document.getElementById("overview-temporadas").innerHTML = String(data.Temporadas).concat(" temporadas");
+}
+
+function download(content, filename, contentType) {
+  if(!contentType) contentType = 'application/octet-stream';
+  var a = document.createElement('a');
+  var blob = new Blob([content], {'type':contentType});
+  a.href = window.URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+const parseCookie = str =>
+  str
+  .split(';')
+  .map(v => v.split('='))
+  .reduce((acc, v) => {
+    acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
+    return acc;
+  }, {});
+
+function getRelatorioAeroportos() {
+  console.log("get relatorio aeroportos")
+
+  const url='http://localhost:8080/admin/aeroportos-report'
+  inputValue = document.getElementById("input-relatorio-aeroportos").value
+  
+  axios.get(url, {params: {cidade: inputValue} })
+    .then(res=>download(res.data, "relatorio-aeroportos-admin.json", "application/json"))
+    .catch(err=>console.log(err))
+}
+
+function getRelatorioStatus() {
+  console.log("get relatorio status")
+  const Url='http://localhost:8080/admin/status-report'
+  axios.get(Url)
+    .then(res=>download(res.data, "relatorio-status-admin.json", "application/json"))
+    .catch(err=>console.log(err))
+}
+
 export default {
   name: 'Admin',
 

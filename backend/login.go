@@ -5,14 +5,15 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
 )
 
 type InputLogin struct {
-	Login    string `json:"login"`
-	Password string `json:"password"`
+	Login    string `json:"login" form:"login"`
+	Password string `json:"password" form:"password"`
 }
 
 type User struct {
@@ -50,8 +51,7 @@ func (s *Service) Login(c echo.Context) error {
 	idCookie.Expires = time.Now().Add(24 * time.Hour)
 	c.SetCookie(idCookie)
 
-	redirectUrl := fmt.Sprintf("/%s/overview", user.Tipo)
+	redirectUrl := fmt.Sprintf("/%s/", strings.ToLower(user.Tipo))
 
 	return c.Redirect(http.StatusFound, redirectUrl)
-	// return http.Redirect()
 }
