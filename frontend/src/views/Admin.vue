@@ -74,14 +74,14 @@
                     <span class="admin-text10">cidade</span>
                     <input
                       type="text"
-                      id="input-relatorio-aeroportos"
+                      id="input-relatorio-admin"
                       name="AiportsReportCity"
                       required
                       placeholder="URL"
                       class="admin-textinput input"
                     />
                   </div>
-                  <button id="button-relatorio-aeroportos" class="admin-button button">
+                  <button id="button-relatorio-admin" class="admin-button button" v-on:click="getRelatorioAdmin()">
                     <span class="admin-text11"><span>CONSULTAR</span></span>
                   </button>
                 </form>
@@ -96,7 +96,7 @@
                   class="admin-imagem-relatorio1"
                 />
                 <form class="admin-form1">
-                  <button id="button-relatorio-status" class="admin-button1 button">
+                  <button id="button-relatorio-status" class="admin-button1 button" v-on:click="getRelatorioStatusAdmin()">
                     <span class="admin-text14"><span>CONSULTAR</span></span>
                   </button>
                 </form>
@@ -255,15 +255,37 @@
 <script>
 import axios from 'axios'
 
+function download(content, filename, contentType) {
+  if(!contentType) contentType = 'application/octet-stream';
+  var a = document.createElement('a');
+  var blob = new Blob([content], {'type':contentType});
+  a.href = window.URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+function parseCookie(str) {
+  str
+  .split(';')
+  .map(v => v.split('='))
+  .reduce((acc, v) => {
+    acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
+    return acc;
+  }, {})
+}
+
 window.onload=function() {
   var cookies = parseCookie(document.cookie)
-  
+  console.log(cookies)
+  console.log("teste")
+
   if (window.location.pathname == "/admin/" && cookies.tipo == "admin") {
     axios.get('http://localhost:8080/'+cookies.tipo+'/overview')
       .then(res=>setOverviewAdmin(res.data))
       .catch(err=>console.log(err))
-    document.getElementById("button-relatorio-aeroportos").addEventListener("click", getRelatorioAeroportos, false);
-    document.getElementById("button-relatorio-status").addEventListener("click", getRelatorioStatus, false);
+    
+    document.getElementById("button-relatorio-admin").addEventListener("click", getRelatorioAdmin, false);
+    document.getElementById("button-relatorio-status").addEventListener("click", getRelatorioStatusAdmin, false);
   }
 }
 
@@ -274,49 +296,50 @@ function setOverviewAdmin(data) {
   document.getElementById("overview-temporadas").innerHTML = String(data.Temporadas).concat(" temporadas");
 }
 
-function download(content, filename, contentType) {
-  if(!contentType) contentType = 'application/octet-stream';
-  var a = document.createElement('a');
-  var blob = new Blob([content], {'type':contentType});
-  a.href = window.URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-}
-
-const parseCookie = str =>
-  str
-  .split(';')
-  .map(v => v.split('='))
-  .reduce((acc, v) => {
-    acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
-    return acc;
-  }, {});
-
-function getRelatorioAeroportos() {
-  console.log("get relatorio aeroportos")
-
-  const url='http://localhost:8080/admin/aeroportos-report'
-  inputValue = document.getElementById("input-relatorio-aeroportos").value
-  
-  axios.get(url, {params: {cidade: inputValue} })
-    .then(res=>download(res.data, "relatorio-aeroportos-admin.json", "application/json"))
-    .catch(err=>console.log(err))
-}
-
-function getRelatorioStatus() {
-  console.log("get relatorio status")
-  const Url='http://localhost:8080/admin/status-report'
-  axios.get(Url)
-    .then(res=>download(res.data, "relatorio-status-admin.json", "application/json"))
-    .catch(err=>console.log(err))
-}
-
 export default {
   name: 'Admin',
 
   data() {
     return {
       rawbcob: ' ',
+    }
+  },
+
+  methods: {
+    download: function(content, filename, contentType) {
+      if(!contentType) contentType = 'application/octet-stream';
+      var a = document.createElement('a');
+      var blob = new Blob([content], {'type':contentType});
+      a.href = window.URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+    },
+    parseCookie: function(str) {
+      str
+      .split(';')
+      .map(v => v.split('='))
+      .reduce((acc, v) => {
+        acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
+        return acc;
+      }, {})
+    },
+    getRelatorioAdmin: function() {
+      console.log("get relatorio aeroportos")
+
+      const url='http://localhost:8080/admin/aeroportos-report'
+      var inputValue = document.getElementById("input-relatorio-admin").value
+      
+      axios.get(url, {params: {cidade: inputValue} })
+        .then(res=>download(res.data, "relatorio-aeroportos-admin.json", "application/json"))
+        .catch(err=>console.log(err))
+    },
+    getRelatorioStatusAdmin: function() {
+      console.log("get relatorio status")
+
+      const Url='http://localhost:8080/admin/status-report'
+      axios.get(Url)
+        .then(res=>download(res.data, "relatorio-status-admin.json", "application/json"))
+        .catch(err=>console.log(err))
     }
   },
 

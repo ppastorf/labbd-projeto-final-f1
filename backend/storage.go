@@ -176,10 +176,10 @@ func (s *StoreImpl) GetAdminOverviewInfo() (*AdminOverviewInfo, error) {
 
 // Constructor
 type ConstructorOverviewInfo struct {
-	Vitorias      int
-	PilotosUnicos int
-	PrimeiroAno   string
-	UltimoAno     string
+	Vitorias      int    `json:"Vitorias"`
+	PilotosUnicos int    `json:"PilotosUnicos"`
+	PrimeiroAno   string `json:"PrimerioAno"`
+	UltimoAno     string `json:"UltimoAno"`
 }
 
 func (s *StoreImpl) GetConstructorOverviewInfo(userId int) (*ConstructorOverviewInfo, error) {

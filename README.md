@@ -8,6 +8,10 @@ Rafael Marques Polakiewicz - 9846045
 Vinicius Cortizo - 10734161
 Vinicius Leite Ribeiro - 10388200
 
+## Queries
+
+Todas as queries SQL utilizadas pelo servidor estão copiadas na pasta `db/queries`. No arquivo de inicialiacão do banco, `db/script.sql`, encontram-se definicões de inicialiacão do banco, criacão de índices, triggers e as funcoes SQL usadas nas queries.
+
 ## Dependências
 
 1. [Docker](https://docs.docker.com/engine/install/) + [docker-compose](https://docs.docker.com/compose/install/)
@@ -40,9 +44,6 @@ Para subir o ambiente completo da aplicação rode os seguintes comandos em orde
 
 1. `npm install` na pasta `frontend/` para instalar as dependencias do frontend
 1. `npm run build` na pasta `frontend/` para buildar os arquivos do frontend
-1. `docker login` para poder baixar as imagens base
 1. `docker-compose build` para montar o container do backend
 1. `docker-compose up -d` para subir o ambiente
-1. Logar no container do pgAdmin e adicionar o servidor do Postgres (hostname: nome do container no `docker-compose.yaml`)
-1. Depois de adicionado, você deve rodar o script de inicialização do banco. Para isso, no pgAdmin clique com o botão direito em cima do banco do Postgres que você adicionou e vá em CREATE script. Na aba que abrir, apague o código e cole o conteúdo do arquivo `data/script.sql` e execute.
 1. Agora você pode acessar o sistema batendo em `localhost:8080` (porta exposta pelo container do backend)

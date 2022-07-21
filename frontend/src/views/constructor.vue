@@ -18,10 +18,7 @@
       <div class="constructor-cards-overview">
         <div class="constructor-overview-card">
           <h2 class="constructor-texto">
-            <span>
-              vitorias:
-              <span v-html="rawcs2h"></span>
-            </span>
+            <span id="overview-pilotos">vitorias</span>
             <br />
             <span>&#123;&#125;</span>
           </h2>
@@ -33,7 +30,7 @@
         </div>
         <div class="constructor-overview-card1">
           <h2 class="constructor-texto1">
-            <span>pilotos (historia): &#123;&#125;</span>
+            <span id="overview-pilotos">pilotos</span>
           </h2>
           <img
             alt="image"
@@ -45,7 +42,7 @@
           <h2 class="constructor-texto2">
             <span>primeiro ano:</span>
             <br />
-            <span>&#123;&#125;</span>
+            <span id="overview-primeiro-ano"></span>
           </h2>
           <img
             alt="image"
@@ -55,9 +52,9 @@
         </div>
         <div class="constructor-overview-card3">
           <h2 class="constructor-texto3">
-            <span>ultimo ano:</span>
+            <span>primeiro ano:</span>
             <br />
-            <span>&#123;&#125;</span>
+            <span id="overview-ultimo-ano"></span>
           </h2>
           <img
             alt="image"
@@ -134,12 +131,60 @@
 </template>
 
 <script>
+import axios from 'axios'
+
+function download(content, filename, contentType) {
+  if(!contentType) contentType = 'application/octet-stream';
+  var a = document.createElement('a');
+  var blob = new Blob([content], {'type':contentType});
+  a.href = window.URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+function parseCookie(str) {
+  str
+  .split(';')
+  .map(v => v.split('='))
+  .reduce((acc, v) => {
+    acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
+    return acc;
+  }, {})
+}
+
+window.onload=function() {
+  var cookies = parseCookie(document.cookie)
+  
+  if (window.location.pathname == "/escuderia/" && cookies.tipo == "escuderia") {
+    axios.get('http://localhost:8080/'+cookies.tipo+'/overview')
+      .then(res=>setOverviewEscuderia(res.data))
+      .catch(err=>console.log(err))
+    
+    document.getElementById("button-relatorio-escuderia").addEventListener("click", getRelatorioEscuderia, false);
+    document.getElementById("button-relatorio-status").addEventListener("click", getRelatorioStatusEscuderia, false);
+  }
+}
+
+function setOverviewEscuderia(data) {
+  document.getElementById("overview-vitorias").innerHTML = String(data.Vitorias) + " vitorias";
+  document.getElementById("overview-pilotos").innerHTML = String(data.PilotosUnicos) + " pilotos";
+  document.getElementById("overview-primeiro-ano").innerHTML = "primeiro ano: " + String(data.PrimeiroAno);
+  document.getElementById("overview-ultimo-ano").innerHTML = "primeiro ano: " + String(data.UltimoAno);
+}
+
 export default {
   name: 'Constructor',
 
   data() {
     return {
       rawcs2h: ' ',
+    }
+  },
+
+ methods: {
+    getRelatorioConstructor: function() {
+    },
+    getRelatorioStatusConstructor: function() {
     }
   },
 

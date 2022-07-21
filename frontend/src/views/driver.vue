@@ -19,12 +19,12 @@
       <div class="driver-cards-overview">
         <div class="driver-overview-card">
           <h2 class="driver-texto">
-            <span>
-              vitorias:
-              <span v-html="rawqwy0"></span>
-            </span>
+            <span id="overview-vitorias"></span>
             <br />
-            <span>&#123;&#125;</span>
+            <span>
+              vitorias 
+            <span v-html="rawqwy0"></span>
+            </span>
           </h2>
           <img
             alt="image"
@@ -36,7 +36,7 @@
           <h2 class="driver-texto1">
             <span>primeiro ano:</span>
             <br />
-            <span>&#123;&#125;</span>
+            <span id="overview-primeiro-ano"></span>
           </h2>
           <img
             alt="image"
@@ -46,9 +46,9 @@
         </div>
         <div class="driver-overview-card2">
           <h2 class="driver-texto2">
-            <span>ultimo ano:</span>
+            <span>primeiro ano:</span>
             <br />
-            <span>&#123;&#125;</span>
+            <span id="overview-ultimo-ano"></span>
           </h2>
           <img
             alt="image"
@@ -72,7 +72,7 @@
                   class="driver-imagem-relatorio"
                 />
                 <form class="driver-form">
-                  <button class="driver-button button">
+                  <button id="button-relatorio" class="driver-button button" >
                     <span class="driver-text13"><span>CONSULTAR</span></span>
                   </button>
                 </form>
@@ -87,7 +87,7 @@
                   class="driver-imagem-relatorio1"
                 />
                 <form class="driver-form1">
-                  <button class="driver-button1 button">
+                  <button id="button-relatorio-status" class="driver-button1 button">
                     <span class="driver-text15"><span>CONSULTAR</span></span>
                   </button>
                 </form>
@@ -101,6 +101,46 @@
 </template>
 
 <script>
+import axios from 'axios'
+
+function download(content, filename, contentType) {
+  if(!contentType) contentType = 'application/octet-stream';
+  var a = document.createElement('a');
+  var blob = new Blob([content], {'type':contentType});
+  a.href = window.URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+function parseCookie(str) {
+  str
+  .split(';')
+  .map(v => v.split('='))
+  .reduce((acc, v) => {
+    acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
+    return acc;
+  }, {})
+}
+
+window.onload=function() {
+  var cookies = parseCookie(document.cookie)
+  
+  if (window.location.pathname == "/piloto/" && cookies.tipo == "piloto") {
+    axios.get('http://localhost:8080/'+cookies.tipo+'/overview')
+      .then(res=>setOverviewPiloto(res.data))
+      .catch(err=>console.log(err))
+    
+    document.getElementById("button-relatorio").addEventListener("click", getRelatorioDriver, false);
+    document.getElementById("button-relatorio-status").addEventListener("click", getRelatorioStatusDriver, false);
+  }
+}
+
+function setOverviewPiloto(data) {
+  document.getElementById("overview-vitorias").innerHTML = String(data.Vitorias) + " vitorias";
+  document.getElementById("overview-primeiro-ano").innerHTML = "primeiro ano: " + String(data.PrimeiroAno);
+  document.getElementById("overview-ultimo-ano").innerHTML = "primeiro ano: " + String(data.UltimoAno);
+}
+
 export default {
   name: 'Driver',
 
@@ -108,6 +148,13 @@ export default {
     return {
       rawqwy0: ' ',
     }
+  },
+
+ methods: {
+    // getRelatorioDriver: function() {
+    // },
+    // getRelatorioStatusDriver: function() {
+    // }
   },
 
   metaInfo: {

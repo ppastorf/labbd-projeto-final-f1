@@ -12,10 +12,10 @@ import (
 // ============================================================================
 // Create constructor
 type CreateConstructorRequest struct {
-	ConstructorRef string `json:"constructorref"`
-	Name           string `json:"name"`
-	Nationality    string `json:"nationality"`
-	Url            string `json:"url"`
+	ConstructorRef string `json:"constructorref" form:"constructorref"`
+	Name           string `json:"name" form:"name"`
+	Nationality    string `json:"nationality" form:"nationality"`
+	Url            string `json:"url" form:"url"`
 }
 
 func (s *Service) CreateConstructor(c echo.Context) error {
@@ -37,13 +37,13 @@ func (s *Service) CreateConstructor(c echo.Context) error {
 
 // Create driver
 type CreateDriverRequest struct {
-	DriverRef   string `json:"driverref"`
-	Number      string `json:"number"`
-	Code        string `json:"code"`
-	Forename    string `json:"forename"`
-	Surname     string `json:"surname"`
-	DateOfBirth string `json:"date_of_birth"`
-	Nationality string `json:"nationality"`
+	DriverRef   string `json:"driverref" form:"driverref"`
+	Number      string `json:"number" form:"number"`
+	Code        string `json:"code" form:"code"`
+	Forename    string `json:"forename" form:"forename"`
+	Surname     string `json:"surname" form:"surname"`
+	DateOfBirth string `json:"date_of_birth" form:"date_of_birth"`
+	Nationality string `json:"nationality" form:"nationality"`
 }
 
 func (s *Service) CreateDriver(c echo.Context) error {
